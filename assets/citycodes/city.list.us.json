@@ -1,0 +1,71 @@
+{"_id":5785243,"name":"Aberdeen","country":"US","coord":{"lon":-123.81572,"lat":46.975368}}
+{"_id":5785657,"name":"Anacortes","country":"US","coord":{"lon":-122.612671,"lat":48.5126}}
+{"_id":5785868,"name":"Arlington","country":"US","coord":{"lon":-122.125137,"lat":48.198711}}
+{"_id":5785965,"name":"Auburn","country":"US","coord":{"lon":-122.228447,"lat":47.30732}}
+{"_id":5786485,"name":"Battle Ground","country":"US","coord":{"lon":-122.533432,"lat":45.780949}}
+{"_id":5786882,"name":"Bellevue","country":"US","coord":{"lon":-122.200684,"lat":47.610378}}
+{"_id":5786899,"name":"Bellingham","country":"US","coord":{"lon":-122.48822,"lat":48.759548}}
+{"_id":5787776,"name":"Bonney Lake","country":"US","coord":{"lon":-122.186508,"lat":47.177052}}
+{"_id":5787829,"name":"Bothell","country":"US","coord":{"lon":-122.205399,"lat":47.762321}}
+{"_id":5788054,"name":"Bremerton","country":"US","coord":{"lon":-122.632637,"lat":47.567322}}
+{"_id":5788516,"name":"Burien","country":"US","coord":{"lon":-122.346786,"lat":47.470379}}
+{"_id":5788822,"name":"Camas","country":"US","coord":{"lon":-122.399544,"lat":45.587059}}
+{"_id":5789683,"name":"Centralia","country":"US","coord":{"lon":-122.9543,"lat":46.716209}}
+{"_id":5790971,"name":"Cottage Lake","country":"US","coord":{"lon":-122.077347,"lat":47.74427}}
+{"_id":5791159,"name":"Covington","country":"US","coord":{"lon":-122.122162,"lat":47.358181}}
+{"_id":5792244,"name":"Des Moines","country":"US","coord":{"lon":-122.324287,"lat":47.401772}}
+{"_id":5793427,"name":"Edmonds","country":"US","coord":{"lon":-122.377357,"lat":47.81065}}
+{"_id":5793933,"name":"Everett","country":"US","coord":{"lon":-122.20208,"lat":47.978981}}
+{"_id":5794097,"name":"Fairwood","country":"US","coord":{"lon":-122.157341,"lat":47.448429}}
+{"_id":5794245,"name":"Federal Way","country":"US","coord":{"lon":-122.312622,"lat":47.322319}}
+{"_id":5794559,"name":"Five Corners","country":"US","coord":{"lon":-122.575104,"lat":45.684559}}
+{"_id":5795011,"name":"Frederickson","country":"US","coord":{"lon":-122.358727,"lat":47.09621}}
+{"_id":5795906,"name":"Graham","country":"US","coord":{"lon":-122.294281,"lat":47.052879}}
+{"_id":5796984,"name":"Hazel Dell","country":"US","coord":{"lon":-122.66288,"lat":45.671509}}
+{"_id":5798487,"name":"Issaquah","country":"US","coord":{"lon":-122.032623,"lat":47.530102}}
+{"_id":5799587,"name":"Kenmore","country":"US","coord":{"lon":-122.244011,"lat":47.75732}}
+{"_id":5799610,"name":"Kennewick","country":"US","coord":{"lon":-119.13723,"lat":46.21125}}
+{"_id":5799625,"name":"Kent","country":"US","coord":{"lon":-122.23484,"lat":47.380932}}
+{"_id":5799841,"name":"Kirkland","country":"US","coord":{"lon":-122.20874,"lat":47.681492}}
+{"_id":5800112,"name":"Lacey","country":"US","coord":{"lon":-122.823189,"lat":47.03426}}
+{"_id":5800317,"name":"Lake Stevens","country":"US","coord":{"lon":-122.063744,"lat":48.015099}}
+{"_id":5800420,"name":"Lakewood","country":"US","coord":{"lon":-122.518463,"lat":47.171761}}
+{"_id":5801617,"name":"Longview","country":"US","coord":{"lon":-122.938171,"lat":46.138168}}
+{"_id":5802049,"name":"Lynnwood","country":"US","coord":{"lon":-122.315132,"lat":47.82093}}
+{"_id":5802340,"name":"Maple Valley","country":"US","coord":{"lon":-122.04641,"lat":47.392719}}
+{"_id":5802493,"name":"Martha Lake","country":"US","coord":{"lon":-122.239304,"lat":47.850929}}
+{"_id":5802570,"name":"Marysville","country":"US","coord":{"lon":-122.177078,"lat":48.051762}}
+{"_id":5803139,"name":"Mercer Island","country":"US","coord":{"lon":-122.222069,"lat":47.570648}}
+{"_id":5803457,"name":"Mill Creek","country":"US","coord":{"lon":-122.2043,"lat":47.8601}}
+{"_id":5803786,"name":"Monroe","country":"US","coord":{"lon":-121.970963,"lat":47.855381}}
+{"_id":5804127,"name":"Mount Vernon","country":"US","coord":{"lon":-122.334053,"lat":48.421219}}
+{"_id":5804191,"name":"Mountlake Terrace","country":"US","coord":{"lon":-122.308739,"lat":47.788151}}
+{"_id":5804306,"name":"Mukilteo","country":"US","coord":{"lon":-122.304581,"lat":47.944538}}
+{"_id":5804953,"name":"North Creek","country":"US","coord":{"lon":-122.176239,"lat":47.819538}}
+{"_id":5805441,"name":"Oak Harbor","country":"US","coord":{"lon":-122.643219,"lat":48.293159}}
+{"_id":5805687,"name":"Olympia","country":"US","coord":{"lon":-122.900703,"lat":47.037868}}
+{"_id":5805782,"name":"Opportunity","country":"US","coord":{"lon":-117.239906,"lat":47.649948}}
+{"_id":5805815,"name":"Orchards","country":"US","coord":{"lon":-122.560928,"lat":45.666512}}
+{"_id":5806253,"name":"Parkland","country":"US","coord":{"lon":-122.434013,"lat":47.15538}}
+{"_id":5807212,"name":"Port Angeles","country":"US","coord":{"lon":-123.43074,"lat":48.118149}}
+{"_id":5807575,"name":"Puyallup","country":"US","coord":{"lon":-122.2929,"lat":47.185379}}
+{"_id":5808079,"name":"Redmond","country":"US","coord":{"lon":-122.121513,"lat":47.673988}}
+{"_id":5808189,"name":"Renton","country":"US","coord":{"lon":-122.217072,"lat":47.48288}}
+{"_id":5809333,"name":"Salmon Creek","country":"US","coord":{"lon":-122.648987,"lat":45.71067}}
+{"_id":5809402,"name":"Sammamish","country":"US","coord":{"lon":-122.080399,"lat":47.641769}}
+{"_id":5809805,"name":"SeaTac","country":"US","coord":{"lon":-122.292168,"lat":47.44846}}
+{"_id":5809844,"name":"Seattle","country":"US","coord":{"lon":-122.332069,"lat":47.606209}}
+{"_id":5811456,"name":"South Hill","country":"US","coord":{"lon":-122.270119,"lat":47.141209}}
+{"_id":5811581,"name":"Spanaway","country":"US","coord":{"lon":-122.43457,"lat":47.103989}}
+{"_id":5811696,"name":"Spokane","country":"US","coord":{"lon":-117.429077,"lat":47.65966}}
+{"_id":5811729,"name":"Spokane Valley","country":"US","coord":{"lon":-117.239372,"lat":47.673229}}
+{"_id":5812944,"name":"Tacoma","country":"US","coord":{"lon":-122.44429,"lat":47.25288}}
+{"_id":5814043,"name":"Tukwila","country":"US","coord":{"lon":-122.260963,"lat":47.473991}}
+{"_id":5814095,"name":"Tumwater","country":"US","coord":{"lon":-122.909309,"lat":47.00732}}
+{"_id":5814450,"name":"University Place","country":"US","coord":{"lon":-122.5504,"lat":47.235649}}
+{"_id":5814616,"name":"Vancouver","country":"US","coord":{"lon":-122.661491,"lat":45.638729}}
+{"_id":5814916,"name":"Walla Walla","country":"US","coord":{"lon":-118.343018,"lat":46.064579}}
+{"_id":5815538,"name":"West Lake Sammamish","country":"US","coord":{"lon":-122.101227,"lat":47.577599}}
+{"_id":5815539,"name":"West Lake Stevens","country":"US","coord":{"lon":-122.101799,"lat":47.993431}}
+{"_id":5816320,"name":"Bainbridge Island","country":"US","coord":{"lon":-122.52124,"lat":47.626209}}
+{"_id":5816605,"name":"Yakima","country":"US","coord":{"lon":-120.505898,"lat":46.60207}}
