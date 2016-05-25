@@ -12,8 +12,6 @@
 
 // 4 Free account has limitation of capacity and data availability. If you do not get respond from server do not try to repeat your request immediately, but only after 10 min. Also we recommend to store your previous request data.
 
-
-
 const apiKey = '4241da6fa29994783519776c66246929';
 const url = 'http://api.openweathermap.org/data/2.5/';
 let cityId = '5788054'
@@ -33,3 +31,25 @@ $xhr = $.getJSON(query);
 $xhr.done((data) => {
   console.log(data);
 });
+
+// Assign handlers immediately after making the request,
+// and remember the jqxhr object for this request
+// var jqxhr = $.getJSON( "example.json", function() {
+//   console.log( "success" );
+// })
+//   .done(function() {
+//     console.log( "second success" );
+//   })
+//   .fail(function() {
+//     console.log( "error" );
+//   })
+//   .always(function() {
+//     console.log( "complete" );
+//   });
+//
+// // Perform other work here ...
+//
+// // Set another completion function for the request above
+// jqxhr.complete(function() {
+//   console.log( "second complete" );
+// });
