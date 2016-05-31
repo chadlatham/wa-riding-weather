@@ -1,4 +1,5 @@
 // IFFE to protect global scope
+var mapGlobal;
 (function() {
   'use strict';
 // App level variables *********************************************************
@@ -615,7 +616,7 @@
   var initWaOrvMap = function () {
     // Create the mapOptions to be loaded at map creation
     var mapOptions = {
-      center: {lat: 47.388304772335616, lng: -120.42595899105072},
+      // center: {lat: 47.388304772335616, lng: -120.42595899105072},
       zoom: 7,
       scaleControl: true,
       mapTypeId: google.maps.MapTypeId.TERRAIN,
@@ -630,9 +631,58 @@
         ]
       }
     };
-    // map.fitBounds({north: 49, south: 46, west: -125, east: -114})
     // Create the map and pass it the map default map options
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    // Establish event listener for changing the boundaries - zoom when changed
+    google.maps.event.addListenerOnce(map, 'bounds_changed', setMapZoom);
+    // Establish event listener for window resize to zoom appropriately
+    monitorWindowResize();
+    // Zoom and pan the map to the boundaries of Washington State
+    fitMapToBounds();
+    // Used for debugging to get access to the map in the global scope.
+    mapGlobal = map;
+  };
+
+  var monitorWindowResize = function () {
+    // Variable is a closure for the eventlisteners below
+    var resizeTimeout;
+
+    function resizeThrottler() {
+      // Only allow 1 actualResizeHandler call every 500 milliseconds
+      if ( !resizeTimeout ) {
+        resizeTimeout = setTimeout(function() {
+          resizeTimeout = null;
+          actualResizeHandler();
+        }, 500);
+      }
+    }
+
+    function actualResizeHandler() {
+      console.log('resize map: ' + window.innerWidth);
+      fitMapToBounds();
+      setMapZoom();
+    }
+
+    // Establish the event handler
+    window.addEventListener("resize", resizeThrottler, false);
+  }
+
+  var fitMapToBounds = function() {
+    map.fitBounds({north: 49, south: 45.6, west: -124, east: -116.5});
+  }
+
+  var setMapZoom = function() {
+    switch (true) {
+      case window.innerWidth <= 660:
+        map.setZoom(6)
+        break;
+      case window.innerWidth <= 900:
+        map.setZoom(7)
+        break;
+      default:
+        map.setZoom(7)
+        break;
+    }
   };
 
   var loadGMAPI = function() {
@@ -825,7 +875,7 @@
     // Clear all items from the list
     $trackingList.empty();
     // Generate Header
-    $trackingList.append('<li class="collection-header brown grey-text text-lighten-4"><h4>Areas to Monitor</h4></li>');
+    $trackingList.append('<li class="collection-header brown grey-text text-lighten-4"><h4>Monitored Areas</h4></li>');
     // Loop through the trackedMarkers array and generate an li for each
     for (var marker of trackedMarkers) {
       // Build HTML for list item
@@ -937,6 +987,7 @@
     // Establish event listener for change event
     $datePicker.on('change',validateDatePicker);
   }
+
 // Immediate execution *********************************************************
   // Pull the Google Maps API objects into the scope of the IFFE.
   loadGMAPI();

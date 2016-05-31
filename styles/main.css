@@ -12,6 +12,19 @@ ul :last-child {
   border-bottom-right-radius: 10px;
 }
 
+/*Materialize Sticky Footer*/
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+/*Materialize Sticky Footer*/
+main {
+  flex: 1 0 auto;
+}
+
+
 /*Classes**********************************************************************/
 
 /*Clear unnecessary padding from top of footer*/
@@ -66,8 +79,9 @@ div.footer-copyright {
 /*IDs**************************************************************************/
 
 #map-canvas {
-  height: 80vh;
+  /*height: 80vh;*/
   border-radius: 10px;
+  padding-top: 70%;
 }
 
 #map-container {
