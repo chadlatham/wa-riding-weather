@@ -1,3 +1,24 @@
+// (function() {
+//   var ridingAreas = require('ridingareas.js');
+//   console.log(ridingAreas);
+// })();
+
+
+// Textbelt API proof of concept
+// curl -X POST http://textbelt.com/text -d number=2533357059 -d "message=I sent this message for free with textbelt.com"
+
+// Textbelt API JavaScript proof of concept
+// const url = 'http://textbelt.com/text';
+// let phoneNumber = 2533357059;
+// let textMessage = 'From JavaScript';
+//
+// $.post( "http://textbelt.com/text", { number: phoneNumber, message: textMessage })
+//   .done(function(data) {
+//     console.log(data);
+//   }
+// );
+
+
 // http://api.openweathermap.org/data/2.5/forecast/city?id=524901&APPID={APIKEY}
 // http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}
 // API KEY: 4241da6fa29994783519776c66246929
@@ -12,26 +33,27 @@
 
 // 4 Free account has limitation of capacity and data availability. If you do not get respond from server do not try to repeat your request immediately, but only after 10 min. Also we recommend to store your previous request data.
 
-const apiKey = '4241da6fa29994783519776c66246929';
-const url = 'http://api.openweathermap.org/data/2.5/';
-let cityId = '5788054'
-let lon = -122.900703;
-let lat = 47.037868;
-let timeFrame = 'forecast'
-let method = '/city'
+// const apiKey = '4241da6fa29994783519776c66246929';
+// const url = 'http://api.openweathermap.org/data/2.5/';
+// let cityId = '5788054'
+// let lon = -122.900703;
+// let lat = 47.037868;
+// let timeFrame = 'forecast'
+// let method = '/city'
 
 // To search by city code
 // let query = `${url}${timeFrame}/${method}?id=${cityId}&APPID=${apiKey}`;
 
 // To search by latitude and longitude
-let query = `${url}${timeFrame}?APPID=${apiKey}&lat=${lat}&lon=${lon}&units=imperial`
+// let query = `${url}${timeFrame}?APPID=${apiKey}&lat=${lat}&lon=${lon}&units=imperial`
 // let queryString = 'http://api.openweathermap.org/data/2.5/forecast?APPID=4241da6fa29994783519776c66246929&lat=47.037868&lon=-122.900703'
 
-$xhr = $.getJSON(query);
-$xhr.done((data) => {
-  console.log(data);
-});
+// $xhr = $.getJSON(query);
+// $xhr.done((data) => {
+//   console.log(data);
+// });
 
+// console.log(ridingAreas);
 // Assign handlers immediately after making the request,
 // and remember the jqxhr object for this request
 // var jqxhr = $.getJSON( "example.json", function() {

@@ -1,0 +1,86 @@
+/*Tags*************************************************************************/
+
+/*Round the list top edges*/
+ul :first-child {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/*Round the list bottom edges*/
+ul :last-child {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/*Classes**********************************************************************/
+
+/*Clear unnecessary padding from top of footer*/
+footer.page-footer {
+  padding-top: 0;
+}
+
+/*Small space to left of logo*/
+a.brand-logo {
+  padding-left: 10px;
+}
+
+/*Keeps bottom of <main> fixed against the footer*/
+div.row.main-row, footer.page-footer {
+  margin: 0;
+}
+
+/*Create space to the left when the footer is left aligned*/
+div.footer-copyright {
+  padding-left: 10px;
+}
+
+/*Keeps text from overlapping cancel button on list item*/
+.collection.with-header .collection-item.avatar {
+  padding-right: 40px;
+}
+
+/*Change cursor to a pointer over these elements*/
+.datepicker, .input-field label {
+  cursor: pointer;
+}
+
+/*Retain the arrow pointer over these elements*/
+.input-field i, li.collection-header {
+  cursor: default;
+}
+
+/*Remove all borders from the tracked list*/
+.collection {
+  border: none;
+}
+
+/*DatePicker Formats*/
+.picker__nav--prev:hover, .picker__nav--next:hover {
+  background: #a1887f !important;
+}
+
+.picker__nav--prev::before:hover {
+  color: #fff !important;
+}
+
+/*IDs**************************************************************************/
+
+#map-canvas {
+  height: 80vh;
+  border-radius: 10px;
+}
+
+#map-container {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/*Media Queries****************************************************************/
+
+/*Over-ride the default left alignment for tablets on down and clear padding*/
+@media only screen and (max-width: 992px) {
+  div.footer-copyright {
+    text-align: center;
+    padding: 0;
+  }
+}
