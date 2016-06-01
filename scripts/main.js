@@ -616,20 +616,15 @@ var mapGlobal;
   var initWaOrvMap = function () {
     // Create the mapOptions to be loaded at map creation
     var mapOptions = {
-      // center: {lat: 47.388304772335616, lng: -120.42595899105072},
-      zoom: 7,
+      zoomControl: true,
       scaleControl: true,
+      streetViewControl: false,
+      rotateControl: false,
+      fullscreenControl: false,
+      mapTypeControl: false,
       mapTypeId: google.maps.MapTypeId.TERRAIN,
-      mapTypeControl: true,
-      mapTypeControlOptions: {
-        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-        mapTypeIds: [
-            google.maps.MapTypeId.ROADMAP,
-            google.maps.MapTypeId.TERRAIN,
-            google.maps.MapTypeId.SATELLITE,
-            google.maps.MapTypeId.HYBRID
-        ]
-      }
+      // scrollwheel: false,
+      // draggable: false,
     };
     // Create the map and pass it the map default map options
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
