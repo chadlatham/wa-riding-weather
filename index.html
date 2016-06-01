@@ -18,8 +18,8 @@
       <div class="navbar-fixed">
         <nav>
           <div class="nav-wrapper green darken-4">
-            <a href="index.html" class="brand-logo grey-text text-lighten-4">WA ORV Weather Tracker</a>
-            <ul class="right hide-on-med-and-down">
+            <a href="index.html" class="brand-logo left grey-text text-lighten-4">WA ORV Weather Tracker</a>
+            <ul class="right">
               <li><a href="mobile.html"><i class="material-icons grey-text text-lighten-4">more_vert</i></a></li>
             </ul>
           </div>
@@ -29,14 +29,31 @@
 
     <main class="brown lighten-4">
       <div class="row main-row">
-        <!-- The primary map container -->
-        <div class="col s1 hide-on-large-only valign-wrapper arrow-spacer">
-          <!-- <div class="arrow-up"></div>
+        <!-- An arrow on left of map to indicate scroll space -->
+        <div class="col s1 hide-on-large-only arrow-spacer valign-wrapper">
+          <div class="arrow-up"></div>
           <div class="arrow-vert-body"></div>
-          <div class="arrow-down"></div> -->
+          <div class="arrow-down"></div>
         </div>
-        <div id="map-container" class="col s11 offset-s1 l8">
-          <div class="map-title center brown grey-text text-lighten-4">Pins  ->  Trip Date  ->  NOTIFY ->  Receive SMS Forecasts</div>
+        <!-- The primary map container -->
+        <div id="map-container" class="col s11 l8">
+          <div class="map-title center brown grey-text text-lighten-4 valign-wrapper">
+            <div>
+              Choose Locations
+            </div>
+            <div>
+              ->
+            </div>
+            <div>
+              Then a Date
+            </div>
+            <div>
+              ->
+            </div>
+            <div>
+              Receive Forecasts
+            </div>
+          </div>
           <div id="map-canvas"></div>
         </div>
         <div class="col s12 l4">
@@ -48,11 +65,11 @@
           <div class="row">
             <form class="center">
               <div class="input-field col s12">
-                <i class="material-icons prefix brown-text text-darken-2">today</i>
+                <i class="material-icons prefix brown-text">today</i>
                 <input class="datepicker brown-text text-darken-2 valid" type="date" id="date" name="date" value="" required>
                 <label class="active brown-text text-darken-2" for="date">Trip Date</label>
               </div>
-              <a class="waves-effect waves-light btn-large light-blue accent-4 grey-text text-lighten-4 z-depth-3"><i class="material-icons left grey-text text-lighten-4">textsms</i>Notify</a>
+              <a class="waves-effect waves-light btn-large light-blue accent-4 grey-text text-lighten-4 z-depth-3"><i class="material-icons left grey-text text-lighten-4">textsms</i>Receive SMS Forecasts</a>
             </form>
           </div>
         </div>

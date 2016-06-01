@@ -635,8 +635,15 @@ var mapGlobal;
     monitorWindowResize();
     // Zoom and pan the map to the boundaries of Washington State
     fitMapToBounds();
+    // Resize the scroll arrows
+    resizeScrollArrow();
     // Used for debugging to get access to the map in the global scope.
     mapGlobal = map;
+  };
+
+  var resizeScrollArrow = function() {
+    $('.arrow-spacer').height($('#map-container').height());
+    $('.arrow-vert-body').height($('#map-container').height()*.7);
   };
 
   var monitorWindowResize = function () {
@@ -655,6 +662,7 @@ var mapGlobal;
 
     function actualResizeHandler() {
       console.log('resize map: ' + window.innerWidth);
+      resizeScrollArrow();
       fitMapToBounds();
       setMapZoom();
     }
@@ -871,7 +879,7 @@ var mapGlobal;
     // Clear all items from the list
     $trackingList.empty();
     // Generate Header
-    $trackingList.append('<li class="collection-header center brown grey-text text-lighten-4"><h5>Monitored Areas</h5><p>(Select NOTIFY to receive text forecasts)</p></li>');
+    $trackingList.append(`<li class="collection-header center brown grey-text text-lighten-4"><h5>Monitored Areas: ${trackedMarkers.length}</h5></li>`);
     // Loop through the trackedMarkers array and generate an li for each
     for (var marker of trackedMarkers) {
       // Build HTML for list item

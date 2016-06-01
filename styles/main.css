@@ -93,35 +93,41 @@ div.footer-copyright {
 .map-title {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
 }
 
-.arrow-spacer {
-  justify-content: space-between;
+.row .col.arrow-spacer {
+  /*display: inline-block;*/
+  justify-content: center;
   flex-direction: column;
-  padding-top: 200%;
+  padding-top: 10px;
+  /*height: 100%;*/
 }
 
 /*CSS TRICK FOR ARROWS*/
 .arrow-up {
   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 20px solid black;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #795548;
 }
 
 .arrow-down {
   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-top: 20px solid black;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #795548;
 }
 
 .arrow-vert-body {
-  width: 10px;
+  width: 5px;
   height: 100px;
-  background-color: black;
+  background-color: #795548;
 }
 
 .arrow-right {
