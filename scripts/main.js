@@ -7,6 +7,7 @@ var mapGlobal;
   var forecastDays = 4; // The maximum number of days of forecase for the API
   var markers = []; // An array of markers placed on map
   var trackedMarkers = []; // An array of the markers being tracked
+  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   // Array of ridingArea objects - Used to generate markers
   var ridingAreas = [
     { lat: '46.517576',
@@ -870,7 +871,7 @@ var mapGlobal;
     // Clear all items from the list
     $trackingList.empty();
     // Generate Header
-    $trackingList.append('<li class="collection-header brown grey-text text-lighten-4"><h4>Monitored Areas</h4></li>');
+    $trackingList.append('<li class="collection-header center brown grey-text text-lighten-4"><h5>Monitored Areas</h5><p>(Select NOTIFY to receive text forecasts)</p></li>');
     // Loop through the trackedMarkers array and generate an li for each
     for (var marker of trackedMarkers) {
       // Build HTML for list item
@@ -930,16 +931,33 @@ var mapGlobal;
     renderTrackingList();
   };
 
+  var calculateDaysAway = function($target) {
+    var result = [];
+    var chosenDate = new Date($target.val());
+    var currentDate = new Date();
+    var compDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+    var msPerDay = 60*60*24*1000
+    var forecastBeginsMS = chosenDate.getTime() - forecastDays * msPerDay;
+    var forecastBeginsDate = new Date();
+    forecastBeginsDate.setTime(forecastBeginsMS);
+    result.push((chosenDate.getTime() - compDate.getTime()) / msPerDay);
+    result.push(forecastBeginsDate);
+    return result;
+  }
+
   var validateDatePicker = function(event) {
     // Date chosen needs to be between today and 4 days from now.
     var $target = $(event.target);
-    var chosenDate = new Date($target.val());
-    var currentDate = new Date();
-    var maxDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()+forecastDays);
-    var maxMS = 60*60*24*1000*forecastDays
-    var chosenDifMS = maxDate.getTime() - chosenDate.getTime();
-    if (chosenDifMS > maxMS || chosenDifMS < 0) {
-      console.log('invalid input');
+    if ($target.val() === '') {
+      $target.addClass('invalid').removeClass('valid');
+      Materialize.toast('Must choose a date', 2000, 'rounded');
+      return;
+    } else {
+      $target.addClass('valid').removeClass('invalid');
+    }
+    var calcDays = calculateDaysAway($target);
+    if (calcDays[0] > forecastDays) {
+      Materialize.toast('Earliest forecasts available: ' + months[calcDays[1].getMonth()] + ' ' + calcDays[1].getDate() + ', ' + calcDays[1].getFullYear(), 3000, 'rounded');
     }
   };
 
@@ -970,7 +988,6 @@ var mapGlobal;
         formatDatePicker();
       },
       min: date,
-      max: 4,
       format: 'mmmm d, yyyy',
       // selectMonths: true, // Creates a dropdown to control month
       // selectYears: 15 // Creates a dropdown of 15 years to control year

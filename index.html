@@ -18,12 +18,9 @@
       <div class="navbar-fixed">
         <nav>
           <div class="nav-wrapper green darken-4">
-            <a href="index.html" class="brand-logo">WA ORV Weather Tracker</a>
+            <a href="index.html" class="brand-logo grey-text text-lighten-4">WA ORV Weather Tracker</a>
             <ul class="right hide-on-med-and-down">
-              <li><a href="sass.html"><i class="material-icons">search</i></a></li>
-              <li><a href="badges.html"><i class="material-icons">view_module</i></a></li>
-              <li><a href="collapsible.html"><i class="material-icons">refresh</i></a></li>
-              <li><a href="mobile.html"><i class="material-icons">more_vert</i></a></li>
+              <li><a href="mobile.html"><i class="material-icons grey-text text-lighten-4">more_vert</i></a></li>
             </ul>
           </div>
         </nav>
@@ -33,7 +30,13 @@
     <main class="brown lighten-4">
       <div class="row main-row">
         <!-- The primary map container -->
+        <div class="col s1 hide-on-large-only valign-wrapper arrow-spacer">
+          <!-- <div class="arrow-up"></div>
+          <div class="arrow-vert-body"></div>
+          <div class="arrow-down"></div> -->
+        </div>
         <div id="map-container" class="col s11 offset-s1 l8">
+          <div class="map-title center brown grey-text text-lighten-4">Pins  ->  Trip Date  ->  NOTIFY ->  Receive SMS Forecasts</div>
           <div id="map-canvas"></div>
         </div>
         <div class="col s12 l4">
@@ -43,13 +46,13 @@
           </ul>
           <!-- The user input form -->
           <div class="row">
-            <form>
+            <form class="center">
               <div class="input-field col s12">
                 <i class="material-icons prefix brown-text text-darken-2">today</i>
-                <input class="datepicker valid brown-text text-darken-2" type="date" id="date" name="date" value="" required>
+                <input class="datepicker brown-text text-darken-2 valid" type="date" id="date" name="date" value="" required>
                 <label class="active brown-text text-darken-2" for="date">Trip Date</label>
               </div>
-              <a class="waves-effect waves-light btn center brown"><i class="material-icons left">textsms</i>Notify</a>
+              <a class="waves-effect waves-light btn-large light-blue accent-4 grey-text text-lighten-4 z-depth-3"><i class="material-icons left grey-text text-lighten-4">textsms</i>Notify</a>
             </form>
           </div>
         </div>
@@ -66,7 +69,5 @@
     <script type="text/javascript" src="jquery/jquery-2.2.4.js"></script>
     <script type="text/javascript" src="materialize/js/materialize.js"></script>
     <script type="text/javascript" src="scripts/main.js"></script>
-    <!-- <script type="text/javascript" src="scripts/index.js"></script> -->
-    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAU8UpdSij3QATPIpBPamsTL27thSCSfyo&callback=initWaOrvMap" async defer></script> -->
   </body>
 </html>

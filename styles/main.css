@@ -76,11 +76,78 @@ div.footer-copyright {
   color: #fff !important;
 }
 
+.collection-header {
+  line-height: 1;
+}
+
+/*Removes margin around list header item*/
+.collection-header h5, .collection-header p {
+  margin: 0;
+}
+
+.toast {
+  background-color: #0091ea;
+}
+
+
+.map-title {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.arrow-spacer {
+  justify-content: space-between;
+  flex-direction: column;
+  padding-top: 200%;
+}
+
+/*CSS TRICK FOR ARROWS*/
+.arrow-up {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 20px solid black;
+}
+
+.arrow-down {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 20px solid black;
+}
+
+.arrow-vert-body {
+  width: 10px;
+  height: 100px;
+  background-color: black;
+}
+
+.arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 60px solid transparent;
+  border-bottom: 60px solid transparent;
+
+  border-left: 60px solid green;
+}
+
+.arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+
+  border-right:10px solid blue;
+}
+
 /*IDs**************************************************************************/
 
 #map-canvas {
-  /*height: 80vh;*/
-  border-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  /*CSS Trick to maintain aspect ratio in flex container*/
   padding-top: 70%;
 }
 
@@ -96,5 +163,11 @@ div.footer-copyright {
   div.footer-copyright {
     text-align: center;
     padding: 0;
+  }
+}
+
+@media only screen and (min-width: 992px) {
+  #map-container {
+    padding-right: 0;
   }
 }
