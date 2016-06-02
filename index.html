@@ -20,7 +20,8 @@
           <div class="nav-wrapper green darken-4">
             <a href="index.html" class="brand-logo left grey-text text-lighten-4">WA ORV Weather Tracker</a>
             <ul class="right">
-              <li><a href="mobile.html"><i class="material-icons grey-text text-lighten-4">more_vert</i></a></li>
+              <!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a> -->
+              <li><a class="modal-trigger" href="#user-settings"><i class="material-icons grey-text text-lighten-4">settings</i></a></li>
             </ul>
           </div>
         </nav>
@@ -73,6 +74,52 @@
             </form>
           </div>
         </div>
+      </div>
+
+      <!-- User settings bottom-sheet modal structure -->
+      <div id="user-settings" class="modal bottom-sheet">
+        <div class="modal-content brown lighten-4">
+          <div class="row">
+            <h4 class="col s6 brown-text">User Settings</h4>
+            <a href="#!" class="col s5 offset-s1 m3 offset-m3 l2 offset-l4 right-align modal-action modal-close waves-effect waves-light btn light-blue accent-4 grey-text text-lighten-4 z-depth-2"><i class="material-icons right">send</i>Update</a>
+          </div>
+          <div class="row">
+            <form class="col s12">
+                <div class="input-field col s12 m6">
+                  <input class="brown-text" id="firstName" type="text">
+                  <label class="active" for="firstName">First Name</label>
+                </div>
+                <div class="input-field col s12 m6">
+                  <input class="brown-text" id="lastName" type="text">
+                  <label class="active" for="lastName">Last Name</label>
+                </div>
+                <div class="input-field col s12 m6">
+                  <input class="brown-text" id="userName" type="text">
+                  <label class="active" for="userName">User Name</label>
+                </div>
+                <div class="input-field col s12 m6">
+                  <input class="brown-text" id="password" type="password">
+                  <label class="active" for="password">Password</label>
+                </div>
+                <div class="input-field col s12 m6">
+                  <input class="brown-text" id="phone" type="tel">
+                  <label class="active" for="phone">Phone</label>
+                </div>
+                <div class="input-field col s12 m6">
+                  <select class="brown-text" id="frequency">
+                    <option value="" disabled>Hours</option>
+                    <option value="6">6</option>
+                    <option value="12">12</option>
+                    <option value="24">24</option>
+                  </select>
+                  <label>Frequency of SMS Messages</label>
+                </div>
+            </form>
+          </div>
+        </div>
+        <!-- <div class="modal-footer">
+
+        </div> -->
       </div>
     </main>
 

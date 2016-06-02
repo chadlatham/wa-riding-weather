@@ -3,11 +3,25 @@ var mapGlobal;
 (function() {
   'use strict';
 // App level variables *********************************************************
-  var map; // The Google Map
-  var forecastDays = 4; // The maximum number of days of forecase for the API
-  var markers = []; // An array of markers placed on map
-  var trackedMarkers = []; // An array of the markers being tracked
+  // The Google Map
+  var map;
+  // The maximum number of days of forecase for the API
+  var forecastDays = 4;
+  // An array of markers placed on map
+  var markers = [];
+  // An array of the markers being tracked
+  var trackedMarkers = [];
+  // An array of month names
   var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  // The simulated user settings object retrieved from database
+  var userSettings = {
+    firstName: 'Chad',
+    lastName: 'Latham',
+    phone: '253.335.7059',
+    frequency: '12',
+    userName: 'chadlatham',
+    password: 'testing'
+  };
   // Array of ridingArea objects - Used to generate markers
   var ridingAreas = [
     { lat: '46.517576',
@@ -883,7 +897,7 @@ var mapGlobal;
     // Loop through the trackedMarkers array and generate an li for each
     for (var marker of trackedMarkers) {
       // Build HTML for list item
-      var $li = $(`<li class="collection-item avatar dismissable"></li>`);
+      var $li = $(`<li class="collection-item avatar brown lighten-3 dismissable"></li>`);
       $li.append(`<img src="assets/images/wheelie.jpeg" alt="motorcycle" class="circle">`);
       $li.append(`<span class="title">${marker.title}</span>`);
       $li.append(`<p>Temperarture<br>Cloudy</p>`);
@@ -1008,6 +1022,161 @@ var mapGlobal;
     $datePicker.on('change',validateDatePicker);
   }
 
+  var setValidity = function($input, validityState) {
+    if (validityState) {
+      $input.addClass('valid').removeClass('invalid');
+    }
+    else
+    {
+      $input.addClass('invalid').removeClass('valid');
+    }
+  }
+
+  var validateFirstName = function() {
+    if ($('#firstName').val() !== "") {
+      setValidity($('#firstName'),true);
+      return true;
+    }
+    setValidity($('#firstName'),false);
+    return false;
+  };
+
+  var validateLastName = function() {
+    if ($('#lastName').val() !== "") {
+      setValidity($('#lastName'),true);
+      return true;
+    }
+    setValidity($('#lastName'),false);
+    return false;
+  };
+
+  var validateUserName = function() {
+    if ($('#userName').val() !== "") {
+      setValidity($('#userName'),true);
+      return true;
+    }
+    setValidity($('#userName'),false);
+    return false;
+  };
+
+  var validatePassword = function() {
+    if ($('#password').val() !== "") {
+      setValidity($('#password'),true);
+      return true;
+    }
+    setValidity($('#password'),false);
+    return false;
+  };
+
+  var validatePhone = function() {
+    var phone = $('#phone').val();
+    var test = phone.match(/(\d{3})[).\-\s]*(\d{3})[.\-\s]*(\d{4})/g);
+    console.log(test);
+    if (test !== null) {
+      setValidity($('#phone'),true);
+      return true;
+    }
+    setValidity($('#phone'),false);
+    return false;
+  };
+
+  var cancelModalSubmit = function() {
+    window.timeOut(function() {
+      $('#user-settings').openModal();
+    }, 1000);
+  }
+
+  // Function to validate each user setting or a single setting based on event
+  var validateUserSettings = function(event) {
+    console.log('validateUserSettings');
+    if (event === undefined) {
+      var validity = true;
+      validity = validity && validateFirstName();
+      if (!validity) {
+        Materialize.toast('Must provide a first name', 3000, 'rounded');
+        cancelModalSubmit();
+        return false;
+      }
+      validity = validity && validateLastName();
+      if (!validity) {
+        Materialize.toast('Must provide a last name', 3000, 'rounded');
+        cancelModalSubmit();
+        return false;
+      }
+      validity = validity && validateUserName();
+      if (!validity) {
+        Materialize.toast('Must provide a user name', 3000, 'rounded');
+        cancelModalSubmit();
+        return false;
+      }
+      validity = validity && validatePassword();
+      if (!validity) {
+        Materialize.toast('Must provide a password', 3000, 'rounded');
+        cancelModalSubmit();
+        return false;
+      }
+      validity = validity && validatePhone();
+      if (!validity) {
+        Materialize.toast('Need US phone number XXX.XXX.XXXX', 3000, 'rounded');
+        cancelModalSubmit();
+        return false;
+      }
+      return true;
+    }
+    else
+    {
+      switch (event.target.id) {
+        case 'firstName':
+          validateFirstName();
+          break;
+        case 'lastName':
+          validateLastName();
+          break;
+        case 'userName':
+          validateUserName();
+          break;
+        case 'password':
+          validatePassword();
+          break;
+        case 'phone':
+          validatePhone();
+          break;
+      }
+    }
+  }
+
+  var initUserSettings = function() {
+    console.log('initUserSettings');
+    Materialize.updateTextFields();
+    $('#firstName').val(userSettings.firstName);
+    $('#lastName').val(userSettings.lastName);
+    $('#userName').val(userSettings.userName);
+    $('#password').val(userSettings.password);
+    $('#phone').val(userSettings.phone);
+    console.log(userSettings.frequency);
+    $('input.select-dropdown').val(userSettings.frequency);
+    validateUserSettings();
+    // Required by Materialize when dynamically updating inputs
+    Materialize.updateTextFields();
+  };
+
+  var updateUserSettings = function() {
+    userSettings.firstName = $('#firstName').val();
+    userSettings.lastName = $('#lastName').val();
+    userSettings.userName = $('#userName').val();
+    userSettings.password = $('#password').val();
+    userSettings.phone = $('#phone').val();
+    userSettings.frequency = $('#frequency').val();
+    Materialize.toast('Settings updated', 3000, 'rounded');
+  };
+
+  var submitModal = function() {
+    console.log('submitModal');
+    if (validateUserSettings()) {
+      updateUserSettings();
+    }
+  };
+
 // Immediate execution *********************************************************
   // Pull the Google Maps API objects into the scope of the IFFE.
   loadGMAPI();
@@ -1015,6 +1184,33 @@ var mapGlobal;
   $('#tracking-list').on('click', 'a', removeTrackedMarker);
   // Initialize the Materialize date picker
   initDatePicker();
+  // Initialize Materialize functionality
+  $(document).ready(function(){
+
+    // Init the bottom modal
+    $('.modal-trigger').leanModal({
+      dismissible: true, // Modal can be dismissed by clicking outside of the modal
+      opacity: .5, // Opacity of modal background
+      in_duration: 300, // Transition in duration
+      out_duration: 200, // Transition out duration
+      ready: initUserSettings,
+      complete: function() {
+        console.log('Modal Closed');
+        resizeScrollArrow();
+      }
+    });
+
+    // Attach event listener delegate to monitor input element validation
+    $('#user-settings').on('keyup', 'input', validateUserSettings);
+    // Attach event listener for submit button on modal form
+    $('#user-settings .modal-action').on('click', submitModal);
+
+
+    // Init the select inputs
+    $('select').material_select();
+
+  // End $(document).ready()
+  });
 
 // End IFFE
 })();

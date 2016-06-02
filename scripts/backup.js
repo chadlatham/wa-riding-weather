@@ -19,6 +19,8 @@
 // );
 
 
+
+
 // http://api.openweathermap.org/data/2.5/forecast/city?id=524901&APPID={APIKEY}
 // http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}
 // API KEY: 4241da6fa29994783519776c66246929
@@ -75,3 +77,10 @@
 // jqxhr.complete(function() {
 //   console.log( "second complete" );
 // });
+
+// google.maps.event.addListener(marker, 'click', function() {
+//         infowindow.setContent('<div><strong>' + place.name + '</strong><br>' +
+//           'Place ID: ' + place.place_id + '<br>' +
+//           place.formatted_address + '</div>');
+//         infowindow.open(map, this);
+//       });
