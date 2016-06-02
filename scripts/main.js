@@ -646,8 +646,6 @@ var mapGlobal;
       fullscreenControl: false,
       mapTypeControl: false,
       mapTypeId: google.maps.MapTypeId.TERRAIN,
-      // scrollwheel: false,
-      // draggable: false,
     };
     // Create the map and pass it the map default map options
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
@@ -928,6 +926,7 @@ var mapGlobal;
         }
       }
     }
+    currentMarkerWeather.marker.setAnimation(google.maps.Animation.BOUNCE);
     // Add the marker to the trackedMarkers array
     trackedMarkers.push(currentMarkerWeather);
     console.log(trackedMarkers);
@@ -988,15 +987,6 @@ var mapGlobal;
     .fail(function() {
       Materialize.toast('Cannot connect to Google Maps', 3000, 'rounded');
     });
-
-
-    // content += `<i class="mdi mdi-weather-cloudy"
-    //            aria-hidden="true"></i>`;
-
-    //  "<img src=" + event.feature.getProperty("icon") + ">"
-    //  + "<br /><strong>" + event.feature.getProperty("city") + "</strong>"
-    //  + "<br />" + event.feature.getProperty("temperature") + "&deg;F"
-    //  + "<br />" + event.feature.getProperty("weather")
   };
 
   var createMarkers = function() {
@@ -1024,6 +1014,8 @@ var mapGlobal;
         index = trackedMarkers.indexOf(obj);
       }
     }
+    // Remove the tracked marker indicator
+    trackedMarkers[index].marker.setAnimation(null);
     // Remove marker from the trackedMarkers array
     trackedMarkers.splice(index,1);
     // Render the tracking-list
@@ -1067,7 +1059,6 @@ var mapGlobal;
     $('.picker__close, .picker__today').addClass('brown-text');
     $('button.picker__close:focus, button.picker__clear:focus, button.picker__today:focus').addClass('brown lighten-2 brown-text');
     $('.picker__day.picker__day--today').addClass('brown-text');
-    // $('.picker__nav--prev:hover, .picker__nav--next:hover').css('background', '#a1887f');
   };
 
   var initDatePicker = function() {
@@ -1088,8 +1079,6 @@ var mapGlobal;
       },
       min: date,
       format: 'mmmm d, yyyy',
-      // selectMonths: true, // Creates a dropdown to control month
-      // selectYears: 15 // Creates a dropdown of 15 years to control year
     });
     // Use the picker object directly.
     var picker = $datePicker.pickadate('picker');

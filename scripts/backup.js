@@ -54,33 +54,3 @@
 // $xhr.done((data) => {
 //   console.log(data);
 // });
-
-// console.log(ridingAreas);
-// Assign handlers immediately after making the request,
-// and remember the jqxhr object for this request
-// var jqxhr = $.getJSON( "example.json", function() {
-//   console.log( "success" );
-// })
-//   .done(function() {
-//     console.log( "second success" );
-//   })
-//   .fail(function() {
-//     console.log( "error" );
-//   })
-//   .always(function() {
-//     console.log( "complete" );
-//   });
-//
-// // Perform other work here ...
-//
-// // Set another completion function for the request above
-// jqxhr.complete(function() {
-//   console.log( "second complete" );
-// });
-
-// google.maps.event.addListener(marker, 'click', function() {
-//         infowindow.setContent('<div><strong>' + place.name + '</strong><br>' +
-//           'Place ID: ' + place.place_id + '<br>' +
-//           place.formatted_address + '</div>');
-//         infowindow.open(map, this);
-//       });
