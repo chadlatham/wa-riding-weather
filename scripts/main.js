@@ -657,7 +657,7 @@ var mapGlobal;
 
   var resizeScrollArrow = function() {
     $('.arrow-spacer').height($('#map-container').height());
-    $('.arrow-vert-body').height($('#map-container').height()*.7);
+    $('.arrow-vert-body').height($('#map-container').height()*.9);
   };
 
   var monitorWindowResize = function () {
