@@ -5,12 +5,16 @@ var mapGlobal;
 // App level variables *********************************************************
   // The Google Map
   var map;
+  // A single infowindow instance
+  var infowindow;
   // The maximum number of days of forecase for the API
   var forecastDays = 4;
   // An array of markers placed on map
   var markers = [];
-  // An array of the markers being tracked
+  // An array of objects with a marker and current weather being tracked
   var trackedMarkers = [];
+  // The current weather query result
+  var currentMarkerWeather;
   // An array of month names
   var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   // The simulated user settings object retrieved from database
@@ -22,6 +26,10 @@ var mapGlobal;
     userName: 'chadlatham',
     password: 'testing'
   };
+  // The Open Weather Map API Key
+  var OWMKey = '4241da6fa29994783519776c66246929';
+
+
   // Array of ridingArea objects - Used to generate markers
   var ridingAreas = [
     { lat: '46.517576',
@@ -653,6 +661,8 @@ var mapGlobal;
     resizeScrollArrow();
     // Used for debugging to get access to the map in the global scope.
     mapGlobal = map;
+    // Initialize the info window object
+    infowindow = new google.maps.InfoWindow();
   };
 
   var resizeScrollArrow = function() {
@@ -734,11 +744,9 @@ var mapGlobal;
   // ***************************************************************************
   var loadOWMIcons = function() {
     // Declare variables for working with openweathermap data
-    var infowindow = new google.maps.InfoWindow();
     var geoJSON;
     var request;
     var gettingData = false;
-    var openWeatherMapKey = "4241da6fa29994783519776c66246929"
 
     // Stop extra requests being sent
     var checkIfDataRequested = function() {
@@ -765,7 +773,7 @@ var mapGlobal;
                           + eastLng + "," + southLat + "," //right bottom
                           + map.getZoom()
                           + "&cluster=yes&format=json"
-                          + "&APPID=" + openWeatherMapKey
+                          + "&APPID=" + OWMKey
                           + "&units=imperial";
 
       request = new XMLHttpRequest();
@@ -847,11 +855,11 @@ var mapGlobal;
     // Sets up and populates the info window with details
     map.data.addListener('click', function(event) {
       infowindow.setContent(
-       "<img src=" + event.feature.getProperty("icon") + ">"
-       + "<br /><strong>" + event.feature.getProperty("city") + "</strong>"
-       + "<br />" + event.feature.getProperty("temperature") + "&deg;F"
-       + "<br />" + event.feature.getProperty("weather")
-       );
+        "<img src=" + event.feature.getProperty("icon") + ">"
+        + "<br /><strong>" + event.feature.getProperty("city") + "</strong>"
+        + "<br />" + event.feature.getProperty("temperature") + "&deg;F"
+        + "<br />" + event.feature.getProperty("weather")
+      );
       infowindow.setOptions({
           position:{
             lat: event.latLng.lat(),
@@ -862,6 +870,10 @@ var mapGlobal;
             height: -15
           }
         });
+      // Establish map event listener for removing an open infowindow
+      google.maps.event.addListenerOnce(map, 'click', function() {
+        infowindow.close(map);
+      });
       infowindow.open(map);
     });
   };
@@ -895,12 +907,12 @@ var mapGlobal;
     // Generate Header
     $trackingList.append(`<li class="collection-header center brown grey-text text-lighten-4"><h5>Monitored Areas: ${trackedMarkers.length}</h5></li>`);
     // Loop through the trackedMarkers array and generate an li for each
-    for (var marker of trackedMarkers) {
+    for (var obj of trackedMarkers) {
       // Build HTML for list item
       var $li = $(`<li class="collection-item avatar brown lighten-3 dismissable"></li>`);
-      $li.append(`<img src="assets/images/wheelie.jpeg" alt="motorcycle" class="circle">`);
-      $li.append(`<span class="title">${marker.title}</span>`);
-      $li.append(`<p>Temperarture<br>Cloudy</p>`);
+      $li.append(`<img src="http://openweathermap.org/img/w/${obj.weather.weather[0].icon}.png" class="circle">`);
+      $li.append(`<p class="title">${obj.marker.title}</p>`);
+      $li.append(`<p><i class="mdi mdi-thermometer" aria-hidden="true"></i> ${obj.weather.main.temp}&deg;F <i class="mdi mdi-weather-windy" aria-hidden="true"></i> ${Math.round(obj.weather.wind.speed)} mph</p>`);
       $li.append(`<a href="#" class="secondary-content"><i class="material-icons brown-text text-darken-2">cancel</i></a>`);
       // Append the new <li> to the trackingList <ul>
       $trackingList.append($li);
@@ -909,11 +921,82 @@ var mapGlobal;
 
   var addTrackedMarker = function(event) {
     // Guard clause to check for item already in list
-    if (trackedMarkers.includes(this)) { return; }
+    if (trackedMarkers.length > 0) {
+      for (var obj of trackedMarkers) {
+        if (obj === currentMarkerWeather) {
+          return;
+        }
+      }
+    }
     // Add the marker to the trackedMarkers array
-    trackedMarkers.push(this);
+    trackedMarkers.push(currentMarkerWeather);
+    console.log(trackedMarkers);
+    // Close the info window
+    infowindow.close(map);
     // Render the tracking list
     renderTrackingList();
+  };
+
+  var getMIWContent = function() {
+    var weather = currentMarkerWeather.weather;
+    var marker = currentMarkerWeather.marker;
+    var icon = weather.weather[0].icon;
+    var content = '';
+    content += `<img src="http://openweathermap.org/img/w/${icon}.png">`;
+    content += `<p class="iw-title"><strong>${marker.title}</strong></p>`;
+    content += `<p><i class="mdi mdi-thermometer" aria-hidden="true"></i> ${weather.main.temp}&deg;F</p>`;
+    content += `<p><i class="mdi mdi-weather-windy" aria-hidden="true"></i> ${Math.round(weather.wind.speed)} mph</p>`;
+    content += `<a id="iwbutton" class="waves-effect waves-light btn light-blue accent-4 z-depth-2">Monitor</a>`;
+    return content;
+  }
+
+  var openMarkerInfoWindow = function(event) {
+    var context = this;
+    var lat = event.latLng.lat();
+    var lng = event.latLng.lng();
+    var time = 'weather'; // 'forecast' for 4 day forecast
+    var url = 'http://api.openweathermap.org/data/2.5/';
+    var units = 'imperial';
+    var query = `${url}${time}?APPID=${OWMKey}`
+    query += `&lat=${lat}&lon=${lng}&units=${units}`;
+
+    var $xhr = $.getJSON(query);
+    $xhr.done(function(data) {
+      currentMarkerWeather = {
+        marker: context,
+        weather: data
+      };
+      infowindow.setContent(getMIWContent());
+      infowindow.setOptions({
+        position:{
+          lat: lat,
+          lng: lng
+        },
+        pixelOffset: {
+          width: 0,
+          height: -15
+        }
+      });
+      // Establish map event listener for removing an open infowindow on click
+      google.maps.event.addListenerOnce(map, 'click', function() {
+        infowindow.close(map);
+      });
+      infowindow.open(map);
+      // Establish listener for button on info window - add to monitor list
+      $('#iwbutton').click(addTrackedMarker);
+    })
+    .fail(function() {
+      Materialize.toast('Cannot connect to Google Maps', 3000, 'rounded');
+    });
+
+
+    // content += `<i class="mdi mdi-weather-cloudy"
+    //            aria-hidden="true"></i>`;
+
+    //  "<img src=" + event.feature.getProperty("icon") + ">"
+    //  + "<br /><strong>" + event.feature.getProperty("city") + "</strong>"
+    //  + "<br />" + event.feature.getProperty("temperature") + "&deg;F"
+    //  + "<br />" + event.feature.getProperty("weather")
   };
 
   var createMarkers = function() {
@@ -924,15 +1007,9 @@ var mapGlobal;
       var marker = new google.maps.Marker({
         position: {lat: lat,lng: lng},
         map: map,
-        title: area.label,
-        // icon: 'assets/images/wheelie.jpeg',
-        // animation: google.maps.Animation.BOUNCE
-        // marker.addListener('click', callBack);
-        // var infowindow = new google.maps.InfoWindow({
-        //   content: secretMessage
-        // });
+        title: area.label
       });
-      marker.addListener('click', addTrackedMarker);
+      marker.addListener('click', openMarkerInfoWindow);
       markers.push(marker);
     }
   };
@@ -942,9 +1019,9 @@ var mapGlobal;
     var title = $(this).prev().prev().text();
     var index;
     // Loop trackedMarkers and record index of marker with the same title
-    for (var marker of trackedMarkers) {
-      if (marker.title === title) {
-        index = trackedMarkers.indexOf(marker);
+    for (var obj of trackedMarkers) {
+      if (obj.marker.title === title) {
+        index = trackedMarkers.indexOf(obj);
       }
     }
     // Remove marker from the trackedMarkers array

@@ -44,10 +44,10 @@
 // let method = '/city'
 
 // To search by city code
-// let query = `${url}${timeFrame}/${method}?id=${cityId}&APPID=${apiKey}`;
+// let query = `${url}${timeFrame}/${method}?id=${cityId}&APPID=${OWMKey}`;
 
 // To search by latitude and longitude
-// let query = `${url}${timeFrame}?APPID=${apiKey}&lat=${lat}&lon=${lon}&units=imperial`
+// let query = `${url}${timeFrame}?APPID=${OWMKey}&lat=${lat}&lon=${lon}&units=imperial`
 // let queryString = 'http://api.openweathermap.org/data/2.5/forecast?APPID=4241da6fa29994783519776c66246929&lat=47.037868&lon=-122.900703'
 
 // $xhr = $.getJSON(query);
