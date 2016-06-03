@@ -787,10 +787,10 @@
       };
 
       // Set the custom marker icon
-      map.data.setStyle(function(feature) {
+      map.data.setStyle((feat) => {
         return {
           icon: {
-            url: feature.getProperty('icon'),
+            url: feat.getProperty('icon'),
             anchor: new google.maps.Point(25, 25)
           }
         };
@@ -800,15 +800,24 @@
       return feature;
     };
 
+    // Add the markers to the map
+    const drawIcons = function() {
+      map.data.addGeoJson(geoJSON);
+
+      // Set the flag to finished
+      gettingData = false;
+    };
+
     // Take the JSON results and proccess them
     const proccessResults = function() {
       const results = JSON.parse(this.responseText);
+
       if (results.list.length > 0) {
         resetData();
         for (let i = 0; i < results.list.length; i++) {
           geoJSON.features.push(jsonToGeoJson(results.list[i]));
         }
-        drawIcons(geoJSON);
+        drawIcons();
       }
     };
 
@@ -826,7 +835,7 @@
 
       request = new XMLHttpRequest();
       request.onload = proccessResults;
-      request.open("get", requestString, true);
+      request.open('get', requestString, true);
       request.send();
     };
 
@@ -839,7 +848,6 @@
       getWeather(NE.lat(), NE.lng(), SW.lat(), SW.lng());
     };
 
-
     // Stop extra requests being sent
     const checkIfDataRequested = function() {
       while (gettingData === true) {
@@ -849,43 +857,30 @@
       getCoords();
     };
 
-
-
-
-
-    // Add the markers to the map
-    var drawIcons = function (weather) {
-       map.data.addGeoJson(geoJSON);
-
-       // Set the flag to finished
-       gettingData = false;
-    };
-
-
     // Add interaction listeners to make weather requests
     google.maps.event.addListener(map, 'idle', checkIfDataRequested);
 
     // Sets up and populates the info window with details
-    map.data.addListener('click', function(event) {
+    map.data.addListener('click', (event) => {
       infowindow.setContent(
-        "<img src=" + event.feature.getProperty("icon") + ">"
-        + "<br /><strong>" + event.feature.getProperty("city") + "</strong>"
-        + "<br />" + event.feature.getProperty("temperature") + "&deg;F"
-        + "<br />" + event.feature.getProperty("weather")
+        '<img src=' + event.feature.getProperty('icon') + '>' +
+        '<br /><strong>' + event.feature.getProperty('city') + '</strong>' +
+        '<br />' + event.feature.getProperty('temperature') + '&deg;F' +
+        '<br />' + event.feature.getProperty('weather')
       );
       infowindow.setOptions({
-          position:{
-            lat: event.latLng.lat(),
-            lng: event.latLng.lng()
-          },
-          pixelOffset: {
-            width: 0,
-            height: -15
-          }
-        });
+        position: {
+          lat: event.latLng.lat(),
+          lng: event.latLng.lng()
+        },
+        pixelOffset: {
+          width: 0,
+          height: -15
+        }
+      });
 
       // Establish map event listener for removing an open infowindow
-      google.maps.event.addListenerOnce(map, 'click', function() {
+      google.maps.event.addListenerOnce(map, 'click', () => {
         infowindow.close(map);
       });
       infowindow.open(map);
@@ -897,11 +892,11 @@
   // ***************************************************************************
   // ***** Create the cloud layer **********************************************
   // ***************************************************************************
-  var loadCloudAndPrecipOverlay = function() {
+  const loadCloudAndPrecipOverlay = function() {
 
     // Define a custom mapType
-    var myMapType = new google.maps.ImageMapType({
-      getTileUrl: function(coord, zoom) {
+    const myMapType = new google.maps.ImageMapType({
+      getTileUrl: (coord, zoom) => {
         return "http://maps.owm.io:8091/56ce0fcd4376d3010038aaa8/" +
             zoom + "/" + coord.x + "/" + coord.y + "?hash=5";
       },
