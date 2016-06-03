@@ -1,5 +1,4 @@
 // IFFE to protect global scope
-var mapGlobal;
 (function() {
   'use strict';
 // App level variables *********************************************************
@@ -28,8 +27,6 @@ var mapGlobal;
   };
   // The Open Weather Map API Key
   var OWMKey = '4241da6fa29994783519776c66246929';
-
-
   // Array of ridingArea objects - Used to generate markers
   var ridingAreas = [
     { lat: '46.517576',
@@ -645,7 +642,7 @@ var mapGlobal;
       rotateControl: false,
       fullscreenControl: false,
       mapTypeControl: false,
-      mapTypeId: google.maps.MapTypeId.TERRAIN,
+      mapTypeId: google.maps.MapTypeId.TERRAIN
     };
     // Create the map and pass it the map default map options
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
@@ -657,8 +654,6 @@ var mapGlobal;
     fitMapToBounds();
     // Resize the scroll arrows
     resizeScrollArrow();
-    // Used for debugging to get access to the map in the global scope.
-    mapGlobal = map;
     // Initialize the info window object
     infowindow = new google.maps.InfoWindow();
   };
@@ -683,7 +678,6 @@ var mapGlobal;
     }
 
     function actualResizeHandler() {
-      console.log('resize map: ' + window.innerWidth);
       resizeScrollArrow();
       fitMapToBounds();
       setMapZoom();
@@ -729,11 +723,10 @@ var mapGlobal;
         createMarkers();
         // Render the trackingList
         renderTrackingList();
-        console.log(map);
       }
     })
     .fail(function( jqxhr, settings, exception ) {
-      console.log('Triggered ajaxError handler.');
+      Materialize.toast('Triggered ajaxError handler.');
     });
   };
 
@@ -782,7 +775,6 @@ var mapGlobal;
 
     // Take the JSON results and proccess them
     var proccessResults = function() {
-      // console.log(this);
       var results = JSON.parse(this.responseText);
       if (results.list.length > 0) {
           resetData();
@@ -929,7 +921,6 @@ var mapGlobal;
     currentMarkerWeather.marker.setAnimation(google.maps.Animation.BOUNCE);
     // Add the marker to the trackedMarkers array
     trackedMarkers.push(currentMarkerWeather);
-    console.log(trackedMarkers);
     // Close the info window
     infowindow.close(map);
     // Render the tracking list
@@ -954,38 +945,48 @@ var mapGlobal;
     var lat = event.latLng.lat();
     var lng = event.latLng.lng();
     var time = 'weather'; // 'forecast' for 4 day forecast
+    var time2 = 'forecast';
     var url = 'http://api.openweathermap.org/data/2.5/';
     var units = 'imperial';
-    var query = `${url}${time}?APPID=${OWMKey}`
+    var query = `${url}${time}?APPID=${OWMKey}`;
     query += `&lat=${lat}&lon=${lng}&units=${units}`;
+    var query2 = `${url}${time2}?APPID=${OWMKey}`;
+    query2 += `&lat=${lat}&lon=${lng}&units=${units}`;
 
     var $xhr = $.getJSON(query);
     $xhr.done(function(data) {
-      currentMarkerWeather = {
-        marker: context,
-        weather: data
-      };
-      infowindow.setContent(getMIWContent());
-      infowindow.setOptions({
-        position:{
-          lat: lat,
-          lng: lng
-        },
-        pixelOffset: {
-          width: 0,
-          height: -15
-        }
+      var $xhrForecast = $.getJSON(query2);
+      $xhrForecast.done(function(data2) {
+        currentMarkerWeather = {
+          marker: context,
+          weather: data,
+          forecast: data2
+        };
+        infowindow.setContent(getMIWContent());
+        infowindow.setOptions({
+          position:{
+            lat: lat,
+            lng: lng
+          },
+          pixelOffset: {
+            width: 0,
+            height: -15
+          }
+        });
+        // Establish map event listener for removing an open infowindow on click
+        google.maps.event.addListenerOnce(map, 'click', function() {
+          infowindow.close(map);
+        });
+        infowindow.open(map);
+        // Establish listener for button on info window - add to monitor list
+        $('#iwbutton').click(addTrackedMarker);
+      })
+      .fail(function() {
+        Materialize.toast('Cannot connect to OpenWeatherMap', 3000, 'rounded');
       });
-      // Establish map event listener for removing an open infowindow on click
-      google.maps.event.addListenerOnce(map, 'click', function() {
-        infowindow.close(map);
-      });
-      infowindow.open(map);
-      // Establish listener for button on info window - add to monitor list
-      $('#iwbutton').click(addTrackedMarker);
     })
     .fail(function() {
-      Materialize.toast('Cannot connect to Google Maps', 3000, 'rounded');
+      Materialize.toast('Cannot connect to OpenWeatherMap', 3000, 'rounded');
     });
   };
 
@@ -1137,7 +1138,6 @@ var mapGlobal;
   var validatePhone = function() {
     var phone = $('#phone').val();
     var test = phone.match(/(\d{3})[).\-\s]*(\d{3})[.\-\s]*(\d{4})/g);
-    console.log(test);
     if (test !== null) {
       setValidity($('#phone'),true);
       return true;
@@ -1154,7 +1154,6 @@ var mapGlobal;
 
   // Function to validate each user setting or a single setting based on event
   var validateUserSettings = function(event) {
-    console.log('validateUserSettings');
     if (event === undefined) {
       var validity = true;
       validity = validity && validateFirstName();
@@ -1212,14 +1211,12 @@ var mapGlobal;
   }
 
   var initUserSettings = function() {
-    console.log('initUserSettings');
     Materialize.updateTextFields();
     $('#firstName').val(userSettings.firstName);
     $('#lastName').val(userSettings.lastName);
     $('#userName').val(userSettings.userName);
     $('#password').val(userSettings.password);
     $('#phone').val(userSettings.phone);
-    console.log(userSettings.frequency);
     $('input.select-dropdown').val(userSettings.frequency);
     validateUserSettings();
     // Required by Materialize when dynamically updating inputs
@@ -1237,46 +1234,112 @@ var mapGlobal;
   };
 
   var submitModal = function() {
-    console.log('submitModal');
     if (validateUserSettings()) {
       updateUserSettings();
     }
   };
 
+  var genModalContent = function() {
+    var $modalContent = $('#sms-submit .modal-content');
+    $modalContent.empty();
+    $modalContent.append(`<h4>Please verify settings</h4>`);
+    $modalContent.append(`<p><i class="mdi mdi-cellphone-android" aria-hidden="true"></i>Phone: ${userSettings.phone}</p>`);
+    $modalContent.append(`<p><i class="mdi mdi-timer" aria-hidden="true"></i>Frequency: ${userSettings.frequency} hrs</p>`);
+  };
+
+  var buildForecastText = function() {
+    var forecast = 'waridingweather.com\n';
+    forecast += 'Forecast for ' + trackedMarkers.length + ' ORV parks:\n';
+    var lineBreak = '-----------------------\n';
+    forecast += lineBreak;
+    var dateTime;
+    var date;
+    var time;
+    var temp;
+    var desc;
+    var wind;
+    for (var obj of trackedMarkers) {
+      forecast += obj.marker.title + '\n';
+      for (var dataPoint of obj.forecast.list) {
+        dateTime = dataPoint.dt_txt.split(" ");
+        date = dateTime[0].substr(dateTime[0].length-2);
+        time = dateTime[1].substr(0,2);
+        desc = dataPoint.weather[0].description;
+        temp = Math.round(dataPoint.main.temp) + 'F';
+        wind = Math.round(dataPoint.wind.speed);
+        forecast += date + ' ' + time + ' ' + temp;
+        forecast += ' ' + wind + 'W '+ desc + '\n';
+      }
+      forecast += lineBreak;
+    }
+    return forecast;
+  };
+
+  var sendSMS = function(smsText) {
+    var url = 'http://textbelt.com/text';
+    var phone = userSettings.phone;
+    $.post( "http://textbelt.com/text", { number: phone, message: smsText })
+      .done(function(data) {
+      }
+    );
+  };
+
+  var smsVerified = function() {
+    // format and send SMS message
+    var smsText = buildForecastText();
+    sendSMS(smsText);
+  };
+
+  var smsSubmit = function() {
+    if (trackedMarkers.length === 0) {
+      $('#sms-submit').closeModal();
+      Materialize.toast('Add an item to be monitored', 3000, 'rounded');
+    }
+    genModalContent();
+  };
+
 // Immediate execution *********************************************************
   // Pull the Google Maps API objects into the scope of the IFFE.
   loadGMAPI();
+  // ************** Initialize Materialize functionality
+  // Init date picker
+  initDatePicker();
+  // Init select inputs
+  $('select').material_select();
+  // Init settings bottom modal
+  $('.modal-trigger.settings').leanModal({
+    dismissible: true, // Modal can be dismissed by clicking outside of the modal
+    opacity: .5, // Opacity of modal background
+    in_duration: 300, // Transition in duration
+    out_duration: 200, // Transition out duration
+    ready: initUserSettings,
+    complete: function() {
+      resizeScrollArrow();
+    }
+  });
+  // Init the confirm send SMS modal
+  $('#sms').leanModal({
+    dismissible: true, // Modal can be dismissed by clicking outside of the modal
+    opacity: .5, // Opacity of modal background
+    in_duration: 300, // Transition in duration
+    out_duration: 200, // Transition out duration
+    ready: function() {},
+    complete: function() {
+      resizeScrollArrow();
+    }
+  });
+
+  // *************** Establish event listeners
   // Create event listener for removing items from the tracking-list
   $('#tracking-list').on('click', 'a', removeTrackedMarker);
-  // Initialize the Materialize date picker
-  initDatePicker();
-  // Initialize Materialize functionality
-  $(document).ready(function(){
-
-    // Init the bottom modal
-    $('.modal-trigger').leanModal({
-      dismissible: true, // Modal can be dismissed by clicking outside of the modal
-      opacity: .5, // Opacity of modal background
-      in_duration: 300, // Transition in duration
-      out_duration: 200, // Transition out duration
-      ready: initUserSettings,
-      complete: function() {
-        console.log('Modal Closed');
-        resizeScrollArrow();
-      }
-    });
-
-    // Attach event listener delegate to monitor input element validation
-    $('#user-settings').on('keyup', 'input', validateUserSettings);
-    // Attach event listener for submit button on modal form
-    $('#user-settings .modal-action').on('click', submitModal);
-
-
-    // Init the select inputs
-    $('select').material_select();
-
-  // End $(document).ready()
-  });
+  // Attach event listener delegate to monitor input element validation
+  $('#user-settings').on('keyup', 'input', validateUserSettings);
+  // Attach event listener for submit button on modal form
+  $('#user-settings .modal-action').on('click', submitModal);
+  // Create event listener for send SMS button
+  $('#sms').on('click', smsSubmit);
+  // Create event listener for sms modal receive button
+  $('#sms-verify').on('click', smsVerified);
 
 // End IFFE
 })();

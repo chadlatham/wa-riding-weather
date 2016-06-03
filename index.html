@@ -21,10 +21,10 @@
           <div class="nav-wrapper green darken-4">
             <a href="index.html" class="brand-logo left grey-text text-lighten-4">WA Riding Weather</a>
             <ul class="right hide-on-med-and-down">
-              <li><a class="modal-trigger" href="#user-settings"><i class="material-icons right grey-text text-lighten-4">settings</i>Settings</a></li>
+              <li><a class="modal-trigger settings" href="#user-settings"><i class="material-icons right grey-text text-lighten-4">settings</i>Settings</a></li>
             </ul>
             <ul class="right hide-on-large-only">
-              <li><a class="modal-trigger" href="#user-settings"><i class="material-icons grey-text text-lighten-4">settings</i></a></li>
+              <li><a class="modal-trigger settings" href="#user-settings"><i class="material-icons grey-text text-lighten-4">settings</i></a></li>
             </ul>
           </div>
         </nav>
@@ -42,21 +42,11 @@
         <!-- The primary map container -->
         <div id="map-container" class="col s11 l8">
           <div class="map-title center brown grey-text text-lighten-4 valign-wrapper">
-            <div>
-              Pins
-            </div>
-            <div>
-              ->
-            </div>
-            <div>
-               Date
-            </div>
-            <div>
-              ->
-            </div>
-            <div>
-              Forecasts
-            </div>
+            <div>Pins</div>
+            <div>-></div>
+            <div>Date</div>
+            <div>-></div>
+            <div>Forecasts</div>
           </div>
           <div id="map-canvas"></div>
         </div>
@@ -73,9 +63,21 @@
                 <input class="datepicker brown-text text-darken-2 valid" type="date" id="date" name="date" value="" required>
                 <label class="active brown-text text-darken-2" for="date">Trip Date</label>
               </div>
-              <a class="waves-effect waves-light btn-large light-blue accent-4 grey-text text-lighten-4 z-depth-3"><i class="material-icons left grey-text text-lighten-4">textsms</i>Receive SMS Forecasts</a>
+              <!-- Modal Trigger -->
+              <a class="waves-effect waves-light btn-large light-blue accent-4 grey-text text-lighten-4 z-depth-3 modal-trigger" href="#sms-submit" id="sms"><i class="material-icons left grey-text text-lighten-4">textsms</i>Receive SMS Forecasts</a>
             </form>
           </div>
+        </div>
+      </div>
+
+      <!-- Submit SMS Modal Structure -->
+      <div id="sms-submit" class="modal">
+        <div class="modal-content">
+          <!-- Content generated dynamically -->
+        </div>
+        <div class="modal-footer">
+          <a href="#!" id="sms-cancel" class="modal-action modal-close waves-effect waves-green btn">Cancel</a>
+          <a href="#!" id="sms-verify" class="modal-action modal-close waves-effect waves-green btn">Verify</a>
         </div>
       </div>
 
@@ -84,6 +86,7 @@
         <div class="modal-content brown lighten-4">
           <div class="row">
             <h4 class="col s6 brown-text">User Settings</h4>
+            <!-- Modal Trigger -->
             <a href="#!" class="col s5 offset-s1 m3 offset-m3 l2 offset-l4 right-align modal-action modal-close waves-effect waves-light btn light-blue accent-4 grey-text text-lighten-4 z-depth-2"><i class="material-icons right">send</i>Update</a>
           </div>
           <div class="row">

@@ -1,5 +1,4 @@
 /*Tags*************************************************************************/
-
 /*Round the list top edges*/
 ul :first-child {
   border-top-left-radius: 10px;
@@ -24,9 +23,7 @@ main {
   flex: 1 0 auto;
 }
 
-
 /*Classes**********************************************************************/
-
 /*Clear unnecessary padding from top of footer*/
 footer.page-footer {
   padding-top: 0;
@@ -118,6 +115,15 @@ div.footer-copyright {
   margin-bottom: 0;
 }
 
+.modal .modal-footer .btn, .modal .modal-footer .btn-large, .modal .modal-footer .btn-flat {
+  margin-right: 20px;
+  background-color: #0091ea;
+}
+
+.modal-content, .modal .modal-footer {
+  background-color: #bcaaa4;
+}
+
 /*Form Labels*/
 /* label focus color */
 .input-field input[type=text]:focus + label, .input-field input[type=tel]:focus + label, .input-field input[type=password]:focus + label, .input-field input[type=email]:focus + label, .input-field select:focus + label {
@@ -166,6 +172,7 @@ div.footer-copyright {
   color: #795548;
 }
 
+
 /*Info Window Styles*/
 .iw-title {
   margin-top: 0;
@@ -199,7 +206,6 @@ div.footer-copyright {
   height: 0;
   border-top: 60px solid transparent;
   border-bottom: 60px solid transparent;
-
   border-left: 60px solid green;
 }
 
@@ -208,7 +214,6 @@ div.footer-copyright {
   height: 0;
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
-
   border-right:10px solid blue;
 }
 
