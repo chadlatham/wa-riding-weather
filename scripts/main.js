@@ -657,6 +657,58 @@
 
 // Function declarations *******************************************************
   // Map functions ~~~~~~~~~~~~~~~~~~~~~~~~
+  const setMapZoom = function() {
+    switch (true) {
+      case window.innerWidth <= 660:
+        map.setZoom(6);
+        break;
+      case window.innerWidth <= 900:
+        map.setZoom(7);
+        break;
+      default:
+        map.setZoom(7);
+        break;
+    }
+  };
+
+  const resizeScrollArrow = function() {
+    $('.arrow-spacer').height($('#map-container').height());
+    $('.arrow-vert-body').height($('#map-container').height() * 0.9);
+  };
+
+  const fitMapToBounds = function() {
+    map.fitBounds({
+      north: 49,
+      south: 45.6,
+      west: -124,
+      east: -116.5
+    });
+  };
+
+  const monitorWindowResize = function() {
+    // Variable is a closure for the eventlisteners below
+    let resizeTimeout;
+
+    const actualResizeHandler = function() {
+      resizeScrollArrow();
+      fitMapToBounds();
+      setMapZoom();
+    };
+
+    const resizeThrottler = function() {
+      // Only allow 1 actualResizeHandler call every 500 milliseconds
+      if (!resizeTimeout) {
+        resizeTimeout = setTimeout(() => {
+          resizeTimeout = null;
+          actualResizeHandler();
+        }, 500);
+      }
+    };
+
+    // Establish the event handler
+    window.addEventListener('resize', resizeThrottler, false);
+  };
+
   const initWaOrvMap = function() {
     // Create the mapOptions to be loaded at map creation
     const mapOptions = {
@@ -670,7 +722,8 @@
     };
 
     // Create the map and pass it the map default map options
-    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    map = new google.maps.Map(document.getElementById('map-canvas'),
+        mapOptions);
 
     // Establish event listener for changing the boundaries - zoom when changed
     google.maps.event.addListenerOnce(map, 'bounds_changed', setMapZoom);
@@ -688,142 +741,30 @@
     infowindow = new google.maps.InfoWindow();
   };
 
-  var resizeScrollArrow = function() {
-    $('.arrow-spacer').height($('#map-container').height());
-    $('.arrow-vert-body').height($('#map-container').height()*.9);
-  };
-
-  var monitorWindowResize = function () {
-
-    // Variable is a closure for the eventlisteners below
-    var resizeTimeout;
-
-    function resizeThrottler() {
-
-      // Only allow 1 actualResizeHandler call every 500 milliseconds
-      if ( !resizeTimeout ) {
-        resizeTimeout = setTimeout(function() {
-          resizeTimeout = null;
-          actualResizeHandler();
-        }, 500);
-      }
-    }
-    function actualResizeHandler() {
-      resizeScrollArrow();
-      fitMapToBounds();
-      setMapZoom();
-    }
-
-    // Establish the event handler
-    window.addEventListener("resize", resizeThrottler, false);
-  }
-  var fitMapToBounds = function() {
-    map.fitBounds({north: 49, south: 45.6, west: -124, east: -116.5});
-  }
-  var setMapZoom = function() {
-    switch (true) {
-      case window.innerWidth <= 660:
-        map.setZoom(6)
-        break;
-      case window.innerWidth <= 900:
-        map.setZoom(7)
-        break;
-      default:
-        map.setZoom(7)
-        break;
-    }
-  };
-
-  var loadGMAPI = function() {
-
-    // jQuery AJAX call to load a script.
-    // This process allows the API to be loaded asynchronously without referring
-    // to a global callback required for HTML5 ASYNC and DEFER as suggested by
-    // Google's API documentation.
-    $.getScript( 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAU8UpdSij3QATPIpBPamsTL27thSCSfyo')
-    .done(function( script, textStatus ) {
-      if (textStatus === 'success') {
-
-        // Initialize the map upon successful loading of script
-        initWaOrvMap();
-
-        // Create the openweathermap icon based overlay
-        loadOWMIcons();
-
-        // Create the tile based cloud and percipitiation overlay
-        // loadCloudAndPrecipOverlay();
-        // Create the riding area markers and attach to map
-        createMarkers();
-
-        // Render the trackingList
-        renderTrackingList();
-      }
-    })
-    .fail(function( jqxhr, settings, exception ) {
-      Materialize.toast('Triggered ajaxError handler.');
-    });
-  };
-
   // ***************************************************************************
   // ***** From the openweathermap example for Google Maps JavaScript API ******
   // ***************************************************************************
-  var loadOWMIcons = function() {
-
+  const loadOWMIcons = function() {
     // Declare variables for working with openweathermap data
-    var geoJSON;
-    var request;
-    var gettingData = false;
+    let geoJSON;
+    let request;
+    let gettingData = false;
 
-    // Stop extra requests being sent
-    var checkIfDataRequested = function() {
-      while (gettingData === true) {
-        request.abort();
-        gettingData = false;
-      }
-      getCoords();
-    };
-
-    // Get the coordinates from the Map bounds
-    var getCoords = function() {
-      var bounds = map.getBounds();
-      var NE = bounds.getNorthEast();
-      var SW = bounds.getSouthWest();
-      getWeather(NE.lat(), NE.lng(), SW.lat(), SW.lng());
-    };
-
-    // Make the weather request
-    var getWeather = function(northLat, eastLng, southLat, westLng) {
-      gettingData = true;
-      var requestString = "http://api.openweathermap.org/data/2.5/box/city?bbox="
-                          + westLng + "," + northLat + "," //left top
-                          + eastLng + "," + southLat + "," //right bottom
-                          + map.getZoom()
-                          + "&cluster=yes&format=json"
-                          + "&APPID=" + OWMKey
-                          + "&units=imperial";
-
-      request = new XMLHttpRequest();
-      request.onload = proccessResults;
-      request.open("get", requestString, true);
-      request.send();
-    };
-
-    // Take the JSON results and proccess them
-    var proccessResults = function() {
-      var results = JSON.parse(this.responseText);
-      if (results.list.length > 0) {
-        resetData();
-        for (var i = 0; i < results.list.length; i++) {
-          geoJSON.features.push(jsonToGeoJson(results.list[i]));
-        }
-        drawIcons(geoJSON);
-      }
+    // Clear data layer and geoJSON
+    const resetData = function() {
+      geoJSON = {
+        type: 'FeatureCollection',
+        features: []
+      };
+      map.data.forEach((feature) => {
+        map.data.remove(feature);
+      });
     };
 
     // For each result that comes back, convert the data to geoJSON
-    var jsonToGeoJson = function (weatherItem) {
-      var feature = {
-        type: "Feature",
+    const jsonToGeoJson = function(weatherItem) {
+      const feature = {
+        type: 'Feature',
         properties: {
           city: weatherItem.name,
           weather: weatherItem.weather[0].main,
@@ -835,12 +776,12 @@
           windSpeed: weatherItem.wind.speed,
           windDegrees: weatherItem.wind.deg,
           windGust: weatherItem.wind.gust,
-          icon: "http://openweathermap.org/img/w/"
-                + weatherItem.weather[0].icon  + ".png",
+          icon: 'http://openweathermap.org/img/w/' +
+          weatherItem.weather[0].icon + '.png',
           coordinates: [weatherItem.coord.lon, weatherItem.coord.lat]
         },
         geometry: {
-          type: "Point",
+          type: 'Point',
           coordinates: [weatherItem.coord.lon, weatherItem.coord.lat]
         }
       };
@@ -859,6 +800,59 @@
       return feature;
     };
 
+    // Take the JSON results and proccess them
+    const proccessResults = function() {
+      const results = JSON.parse(this.responseText);
+      if (results.list.length > 0) {
+        resetData();
+        for (let i = 0; i < results.list.length; i++) {
+          geoJSON.features.push(jsonToGeoJson(results.list[i]));
+        }
+        drawIcons(geoJSON);
+      }
+    };
+
+    // Make the weather request
+    const getWeather = function(northLat, eastLng, southLat, westLng) {
+      gettingData = true;
+      const requestString =
+        'http://api.openweathermap.org/data/2.5/box/city?bbox=' +
+        westLng + ',' + northLat + ',' +
+        eastLng + ',' + southLat + ',' +
+        map.getZoom() +
+        '&cluster=yes&format=json' +
+        '&APPID=' + OWMKey +
+        '&units=imperial';
+
+      request = new XMLHttpRequest();
+      request.onload = proccessResults;
+      request.open("get", requestString, true);
+      request.send();
+    };
+
+    // Get the coordinates from the Map bounds
+    const getCoords = function() {
+      const bounds = map.getBounds();
+      const NE = bounds.getNorthEast();
+      const SW = bounds.getSouthWest();
+
+      getWeather(NE.lat(), NE.lng(), SW.lat(), SW.lng());
+    };
+
+
+    // Stop extra requests being sent
+    const checkIfDataRequested = function() {
+      while (gettingData === true) {
+        request.abort();
+        gettingData = false;
+      }
+      getCoords();
+    };
+
+
+
+
+
     // Add the markers to the map
     var drawIcons = function (weather) {
        map.data.addGeoJson(geoJSON);
@@ -867,16 +861,6 @@
        gettingData = false;
     };
 
-    // Clear data layer and geoJSON
-    var resetData = function () {
-      geoJSON = {
-        type: "FeatureCollection",
-        features: []
-      };
-      map.data.forEach(function(feature) {
-        map.data.remove(feature);
-      });
-    };
 
     // Add interaction listeners to make weather requests
     google.maps.event.addListener(map, 'idle', checkIfDataRequested);
@@ -932,6 +916,34 @@
   };
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  const loadGMAPI = function() {
+    // jQuery AJAX call to load a script.
+    // This process allows the API to be loaded asynchronously without referring
+    // to a global callback required for HTML5 ASYNC and DEFER as suggested by
+    // Google's API documentation.
+    $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyAU8UpdSij3QATPIpBPamsTL27thSCSfyo')
+    .done((script, textStatus) => {
+      if (textStatus === 'success') {
+        // Initialize the map upon successful loading of script
+        initWaOrvMap();
+
+        // Create the openweathermap icon based overlay
+        loadOWMIcons();
+
+        // Create the tile based cloud and percipitiation overlay
+        // loadCloudAndPrecipOverlay();
+        // Create the riding area markers and attach to map
+        createMarkers();
+
+        // Render the trackingList
+        renderTrackingList();
+      }
+    })
+    .fail((jqxhr, settings, exception) => {
+      Materialize.toast('Triggered ajaxError handler.');
+    });
+  };
+
   var renderTrackingList = function() {
     var $trackingList = $('#tracking-list');
 
@@ -985,8 +997,7 @@
     var content = '';
     content += `<img src="http://openweathermap.org/img/w/${icon}.png">`;
     content += `<p class="iw-title"><strong>${marker.title}</strong></p>`;
-    content += `<p><i class="mdi mdi-thermometer" aria-hidden="true"></i> ${weather.main.temp}&deg;F</p>`;
-    content += `<p><i class="mdi mdi-weather-windy" aria-hidden="true"></i> ${Math.round(weather.wind.speed)} mph</p>`;
+    content += `<p><i class="mdi mdi-thermometer" aria-hidden="true"></i> ${weather.main.temp}&deg;F <i class="mdi mdi-weather-windy" aria-hidden="true"></i> ${Math.round(weather.wind.speed)} mph</p>`;
     content += `<a id="iwbutton" class="waves-effect waves-light btn light-blue accent-4 z-depth-2">Monitor</a>`;
     return content;
   }
