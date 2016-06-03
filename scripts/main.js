@@ -1,34 +1,58 @@
 // IFFE to protect global scope
 (function() {
   'use strict';
+
 // App level variables *********************************************************
+
   // The Google Map
-  var map;
+  let map;
+
   // A single infowindow instance
-  var infowindow;
+  let infowindow;
+
   // The maximum number of days of forecase for the API
-  var forecastDays = 4;
+  const forecastDays = 4;
+
   // An array of markers placed on map
-  var markers = [];
+  const markers = [];
+
   // An array of objects with a marker and current weather being tracked
-  var trackedMarkers = [];
+  const trackedMarkers = [];
+
   // The current weather query result
-  var currentMarkerWeather;
+  let currentMarkerWeather;
+
   // An array of month names
-  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
+
   // The simulated user settings object retrieved from database
-  var userSettings = {
+  const userSettings = {
     firstName: 'Chad',
     lastName: 'Latham',
-    phone: '253.335.7059',
+    phone: '000.000.0000',
     frequency: '12',
     userName: 'chadlatham',
     password: 'testing'
   };
+
   // The Open Weather Map API Key
-  var OWMKey = '4241da6fa29994783519776c66246929';
+  const OWMKey = '4241da6fa29994783519776c66246929';
+
   // Array of ridingArea objects - Used to generate markers
-  var ridingAreas = [
+  const ridingAreas = [
     { lat: '46.517576',
     lng: '-121.017341',
     label: 'Ahtanum State Forest',
@@ -633,9 +657,9 @@
 
 // Function declarations *******************************************************
   // Map functions ~~~~~~~~~~~~~~~~~~~~~~~~
-  var initWaOrvMap = function () {
+  const initWaOrvMap = function() {
     // Create the mapOptions to be loaded at map creation
-    var mapOptions = {
+    const mapOptions = {
       zoomControl: true,
       scaleControl: true,
       streetViewControl: false,
@@ -644,16 +668,22 @@
       mapTypeControl: false,
       mapTypeId: google.maps.MapTypeId.TERRAIN
     };
+
     // Create the map and pass it the map default map options
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
     // Establish event listener for changing the boundaries - zoom when changed
     google.maps.event.addListenerOnce(map, 'bounds_changed', setMapZoom);
+
     // Establish event listener for window resize to zoom appropriately
     monitorWindowResize();
+
     // Zoom and pan the map to the boundaries of Washington State
     fitMapToBounds();
+
     // Resize the scroll arrows
     resizeScrollArrow();
+
     // Initialize the info window object
     infowindow = new google.maps.InfoWindow();
   };
@@ -664,10 +694,12 @@
   };
 
   var monitorWindowResize = function () {
+
     // Variable is a closure for the eventlisteners below
     var resizeTimeout;
 
     function resizeThrottler() {
+
       // Only allow 1 actualResizeHandler call every 500 milliseconds
       if ( !resizeTimeout ) {
         resizeTimeout = setTimeout(function() {
@@ -676,7 +708,6 @@
         }, 500);
       }
     }
-
     function actualResizeHandler() {
       resizeScrollArrow();
       fitMapToBounds();
@@ -686,11 +717,9 @@
     // Establish the event handler
     window.addEventListener("resize", resizeThrottler, false);
   }
-
   var fitMapToBounds = function() {
     map.fitBounds({north: 49, south: 45.6, west: -124, east: -116.5});
   }
-
   var setMapZoom = function() {
     switch (true) {
       case window.innerWidth <= 660:
@@ -706,6 +735,7 @@
   };
 
   var loadGMAPI = function() {
+
     // jQuery AJAX call to load a script.
     // This process allows the API to be loaded asynchronously without referring
     // to a global callback required for HTML5 ASYNC and DEFER as suggested by
@@ -713,14 +743,18 @@
     $.getScript( 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAU8UpdSij3QATPIpBPamsTL27thSCSfyo')
     .done(function( script, textStatus ) {
       if (textStatus === 'success') {
+
         // Initialize the map upon successful loading of script
         initWaOrvMap();
+
         // Create the openweathermap icon based overlay
         loadOWMIcons();
+
         // Create the tile based cloud and percipitiation overlay
         // loadCloudAndPrecipOverlay();
         // Create the riding area markers and attach to map
         createMarkers();
+
         // Render the trackingList
         renderTrackingList();
       }
@@ -734,6 +768,7 @@
   // ***** From the openweathermap example for Google Maps JavaScript API ******
   // ***************************************************************************
   var loadOWMIcons = function() {
+
     // Declare variables for working with openweathermap data
     var geoJSON;
     var request;
@@ -777,11 +812,11 @@
     var proccessResults = function() {
       var results = JSON.parse(this.responseText);
       if (results.list.length > 0) {
-          resetData();
-          for (var i = 0; i < results.list.length; i++) {
-            geoJSON.features.push(jsonToGeoJson(results.list[i]));
-          }
-          drawIcons(geoJSON);
+        resetData();
+        for (var i = 0; i < results.list.length; i++) {
+          geoJSON.features.push(jsonToGeoJson(results.list[i]));
+        }
+        drawIcons(geoJSON);
       }
     };
 
@@ -809,6 +844,7 @@
           coordinates: [weatherItem.coord.lon, weatherItem.coord.lat]
         }
       };
+
       // Set the custom marker icon
       map.data.setStyle(function(feature) {
         return {
@@ -818,6 +854,7 @@
           }
         };
       });
+
       // returns object
       return feature;
     };
@@ -825,6 +862,7 @@
     // Add the markers to the map
     var drawIcons = function (weather) {
        map.data.addGeoJson(geoJSON);
+
        // Set the flag to finished
        gettingData = false;
     };
@@ -842,6 +880,7 @@
 
     // Add interaction listeners to make weather requests
     google.maps.event.addListener(map, 'idle', checkIfDataRequested);
+
     // Sets up and populates the info window with details
     map.data.addListener('click', function(event) {
       infowindow.setContent(
@@ -860,6 +899,7 @@
             height: -15
           }
         });
+
       // Establish map event listener for removing an open infowindow
       google.maps.event.addListenerOnce(map, 'click', function() {
         infowindow.close(map);
@@ -867,12 +907,14 @@
       infowindow.open(map);
     });
   };
+
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   // ***************************************************************************
   // ***** Create the cloud layer **********************************************
   // ***************************************************************************
   var loadCloudAndPrecipOverlay = function() {
+
     // Define a custom mapType
     var myMapType = new google.maps.ImageMapType({
       getTileUrl: function(coord, zoom) {
@@ -884,32 +926,38 @@
       minZoom: 0,
       name: 'mymaptype'
     });
+
     // Insert the mapType Overlay into the Google Map
     map.overlayMapTypes.insertAt(0, myMapType);
   };
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   var renderTrackingList = function() {
     var $trackingList = $('#tracking-list');
 
     // Clear all items from the list
     $trackingList.empty();
+
     // Generate Header
     $trackingList.append(`<li class="collection-header center brown grey-text text-lighten-4"><h5>Monitored Areas: ${trackedMarkers.length}</h5></li>`);
+
     // Loop through the trackedMarkers array and generate an li for each
     for (var obj of trackedMarkers) {
+
       // Build HTML for list item
       var $li = $(`<li class="collection-item avatar brown lighten-3 dismissable"></li>`);
       $li.append(`<img src="http://openweathermap.org/img/w/${obj.weather.weather[0].icon}.png" class="circle">`);
       $li.append(`<p class="title">${obj.marker.title}</p>`);
       $li.append(`<p><i class="mdi mdi-thermometer" aria-hidden="true"></i> ${obj.weather.main.temp}&deg;F <i class="mdi mdi-weather-windy" aria-hidden="true"></i> ${Math.round(obj.weather.wind.speed)} mph</p>`);
       $li.append(`<a href="#" class="secondary-content"><i class="material-icons brown-text text-darken-2">cancel</i></a>`);
+
       // Append the new <li> to the trackingList <ul>
       $trackingList.append($li);
     }
   };
 
   var addTrackedMarker = function(event) {
+
     // Guard clause to check for item already in list
     if (trackedMarkers.length > 0) {
       for (var obj of trackedMarkers) {
@@ -919,10 +967,13 @@
       }
     }
     currentMarkerWeather.marker.setAnimation(google.maps.Animation.BOUNCE);
+
     // Add the marker to the trackedMarkers array
     trackedMarkers.push(currentMarkerWeather);
+
     // Close the info window
     infowindow.close(map);
+
     // Render the tracking list
     renderTrackingList();
   };
@@ -944,7 +995,7 @@
     var context = this;
     var lat = event.latLng.lat();
     var lng = event.latLng.lng();
-    var time = 'weather'; // 'forecast' for 4 day forecast
+    var time = 'weather';
     var time2 = 'forecast';
     var url = 'http://api.openweathermap.org/data/2.5/';
     var units = 'imperial';
@@ -973,11 +1024,13 @@
             height: -15
           }
         });
+
         // Establish map event listener for removing an open infowindow on click
         google.maps.event.addListenerOnce(map, 'click', function() {
           infowindow.close(map);
         });
         infowindow.open(map);
+
         // Establish listener for button on info window - add to monitor list
         $('#iwbutton').click(addTrackedMarker);
       })
@@ -991,6 +1044,7 @@
   };
 
   var createMarkers = function() {
+
     // Loop through riding areas, create markers, and store in array
     for (var area of ridingAreas) {
       var lat = parseFloat(area.lat);
@@ -1006,19 +1060,24 @@
   };
 
   var removeTrackedMarker = function(event) {
+
     // Get the title from the item in the list
     var title = $(this).prev().prev().text();
     var index;
+
     // Loop trackedMarkers and record index of marker with the same title
     for (var obj of trackedMarkers) {
       if (obj.marker.title === title) {
         index = trackedMarkers.indexOf(obj);
       }
     }
+
     // Remove the tracked marker indicator
     trackedMarkers[index].marker.setAnimation(null);
+
     // Remove marker from the trackedMarkers array
     trackedMarkers.splice(index,1);
+
     // Render the tracking-list
     renderTrackingList();
   };
@@ -1038,6 +1097,7 @@
   }
 
   var validateDatePicker = function(event) {
+
     // Date chosen needs to be between today and 4 days from now.
     var $target = $(event.target);
     if ($target.val() === '') {
@@ -1081,10 +1141,13 @@
       min: date,
       format: 'mmmm d, yyyy',
     });
+
     // Use the picker object directly.
     var picker = $datePicker.pickadate('picker');
+
     // Using JavaScript Date objects.
     picker.set('select', new Date(year, month, day))
+
     // Establish event listener for change event
     $datePicker.on('change',validateDatePicker);
   }
@@ -1258,8 +1321,12 @@
     var temp;
     var desc;
     var wind;
+
+    // Loop the tracked object markers, current, and forecast data
     for (var obj of trackedMarkers) {
       forecast += obj.marker.title + '\n';
+
+      // Loop the forecast dataPoints
       for (var dataPoint of obj.forecast.list) {
         dateTime = dataPoint.dt_txt.split(" ");
         date = dateTime[0].substr(dateTime[0].length-2);
@@ -1272,6 +1339,7 @@
       }
       forecast += lineBreak;
     }
+
     return forecast;
   };
 
@@ -1285,6 +1353,7 @@
   };
 
   var smsVerified = function() {
+
     // format and send SMS message
     var smsText = buildForecastText();
     sendSMS(smsText);
@@ -1301,28 +1370,32 @@
 // Immediate execution *********************************************************
   // Pull the Google Maps API objects into the scope of the IFFE.
   loadGMAPI();
+
   // ************** Initialize Materialize functionality
   // Init date picker
   initDatePicker();
+
   // Init select inputs
   $('select').material_select();
+
   // Init settings bottom modal
   $('.modal-trigger.settings').leanModal({
-    dismissible: true, // Modal can be dismissed by clicking outside of the modal
-    opacity: .5, // Opacity of modal background
-    in_duration: 300, // Transition in duration
-    out_duration: 200, // Transition out duration
+    dismissible: true,
+    opacity: .5,
+    in_duration: 300,
+    out_duration: 200,
     ready: initUserSettings,
     complete: function() {
       resizeScrollArrow();
     }
   });
+
   // Init the confirm send SMS modal
   $('#sms').leanModal({
-    dismissible: true, // Modal can be dismissed by clicking outside of the modal
-    opacity: .5, // Opacity of modal background
-    in_duration: 300, // Transition in duration
-    out_duration: 200, // Transition out duration
+    dismissible: true,
+    opacity: .5,
+    in_duration: 300,
+    out_duration: 200,
     ready: function() {},
     complete: function() {
       resizeScrollArrow();
@@ -1332,12 +1405,16 @@
   // *************** Establish event listeners
   // Create event listener for removing items from the tracking-list
   $('#tracking-list').on('click', 'a', removeTrackedMarker);
+
   // Attach event listener delegate to monitor input element validation
   $('#user-settings').on('keyup', 'input', validateUserSettings);
+
   // Attach event listener for submit button on modal form
   $('#user-settings .modal-action').on('click', submitModal);
+
   // Create event listener for send SMS button
   $('#sms').on('click', smsSubmit);
+
   // Create event listener for sms modal receive button
   $('#sms-verify').on('click', smsVerified);
 
