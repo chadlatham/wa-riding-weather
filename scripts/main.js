@@ -743,6 +743,7 @@
 
   // ***************************************************************************
   // ***** From the openweathermap example for Google Maps JavaScript API ******
+  // ***** Rewritten to use jQuery and practice better form (not perfect) ******
   // ***************************************************************************
   const loadOWMIcons = function() {
     // Declare variables for working with openweathermap data
@@ -763,6 +764,9 @@
 
     // For each result that comes back, convert the data to geoJSON
     const jsonToGeoJson = function(weatherItem) {
+      let iconUrl = 'http://openweathermap.org/img/w/';
+
+      iconUrl += `${weatherItem.weather[0].icon}.png`;
       const feature = {
         type: 'Feature',
         properties: {
@@ -776,8 +780,7 @@
           windSpeed: weatherItem.wind.speed,
           windDegrees: weatherItem.wind.deg,
           windGust: weatherItem.wind.gust,
-          icon: 'http://openweathermap.org/img/w/' +
-          weatherItem.weather[0].icon + '.png',
+          icon: iconUrl,
           coordinates: [weatherItem.coord.lon, weatherItem.coord.lat]
         },
         geometry: {
@@ -788,12 +791,14 @@
 
       // Set the custom marker icon
       map.data.setStyle((feat) => {
-        return {
+        const result = {
           icon: {
             url: feat.getProperty('icon'),
             anchor: new google.maps.Point(25, 25)
           }
         };
+
+        return result;
       });
 
       // returns object
@@ -809,48 +814,51 @@
     };
 
     // Take the JSON results and proccess them
-    const proccessResults = function() {
-      const results = JSON.parse(this.responseText);
-
+    const processResults = function(results) {
       if (results.list.length > 0) {
         resetData();
-        for (let i = 0; i < results.list.length; i++) {
-          geoJSON.features.push(jsonToGeoJson(results.list[i]));
+        for (const forecast of results.list) {
+          geoJSON.features.push(jsonToGeoJson(forecast));
         }
         drawIcons();
       }
     };
 
     // Make the weather request
-    const getWeather = function(northLat, eastLng, southLat, westLng) {
+    const getWeather = function(box) {
       gettingData = true;
-      const requestString =
-        'http://api.openweathermap.org/data/2.5/box/city?bbox=' +
-        westLng + ',' + northLat + ',' +
-        eastLng + ',' + southLat + ',' +
-        map.getZoom() +
-        '&cluster=yes&format=json' +
-        '&APPID=' + OWMKey +
-        '&units=imperial';
+      let query = 'http://api.openweathermap.org/data/2.5/box/city?bbox=';
 
-      request = new XMLHttpRequest();
-      request.onload = proccessResults;
-      request.open('get', requestString, true);
-      request.send();
+      query += `${box.west},${box.north},${box.east},${box.south},`;
+      query += `${map.getZoom()}&cluster=yes&format=json&APPID=${OWMKey}`;
+      query += '&units=imperial';
+      const owmError = 'Cannot communicate with OpenWeatherMap';
+
+      const $xhr = $.getJSON(query);
+
+      $xhr.done(processResults)
+      .fail(() => {
+        Materialize.toast(owmError, 3000, 'rounded');
+      });
     };
 
     // Get the coordinates from the Map bounds
     const getCoords = function() {
       const bounds = map.getBounds();
-      const NE = bounds.getNorthEast();
-      const SW = bounds.getSouthWest();
 
-      getWeather(NE.lat(), NE.lng(), SW.lat(), SW.lng());
+      const perimeter = {
+        north: bounds.getNorthEast().lat(),
+        east: bounds.getNorthEast().lng(),
+        south: bounds.getSouthWest().lat(),
+        west: bounds.getSouthWest().lng()
+      };
+
+      getWeather(perimeter);
     };
 
     // Stop extra requests being sent
     const checkIfDataRequested = function() {
-      while (gettingData === true) {
+      while (gettingData) {
         request.abort();
         gettingData = false;
       }
@@ -862,13 +870,13 @@
 
     // Sets up and populates the info window with details
     map.data.addListener('click', (event) => {
-      infowindow.setContent(
-        '<img src=' + event.feature.getProperty('icon') + '>' +
-        '<br /><strong>' + event.feature.getProperty('city') + '</strong>' +
-        '<br />' + event.feature.getProperty('temperature') + '&deg;F' +
-        '<br />' + event.feature.getProperty('weather')
-      );
-      infowindow.setOptions({
+      let content = `<img src=${event.feature.getProperty('icon')}>`;
+
+      content += `<br/><strong>${event.feature.getProperty('city')}</strong>`;
+      content += `<br/>${event.feature.getProperty('temperature')}&deg;F`;
+      content += `<br/>${event.feature.getProperty('weather')}`;
+      infowindow.setContent(content);
+      const options = {
         position: {
           lat: event.latLng.lat(),
           lng: event.latLng.lng()
@@ -877,7 +885,9 @@
           width: 0,
           height: -15
         }
-      });
+      };
+
+      infowindow.setOptions(options);
 
       // Establish map event listener for removing an open infowindow
       google.maps.event.addListenerOnce(map, 'click', () => {
@@ -890,15 +900,17 @@
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   // ***************************************************************************
-  // ***** Create the cloud layer **********************************************
+  // ***** Create the cloud layer * CURRENTLY DISABLED * UNDESIRED EFFECTS *****
   // ***************************************************************************
   const loadCloudAndPrecipOverlay = function() {
-
     // Define a custom mapType
     const myMapType = new google.maps.ImageMapType({
       getTileUrl: (coord, zoom) => {
-        return "http://maps.owm.io:8091/56ce0fcd4376d3010038aaa8/" +
-            zoom + "/" + coord.x + "/" + coord.y + "?hash=5";
+        let tileUrl = 'http://maps.owm.io:8091/56ce0fcd4376d3010038aaa8/';
+
+        tileUrl += `${zoom}/${coord.x}/${coord.y}?hash=5`;
+
+        return tileUrl;
       },
       tileSize: new google.maps.Size(256, 256),
       maxZoom: 9,
@@ -911,6 +923,176 @@
   };
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  const getMIWContent = function() {
+    const weather = currentMarkerWeather.weather;
+    const marker = currentMarkerWeather.marker;
+    const icon = weather.weather[0].icon;
+    let content = `<img src="http://openweathermap.org/img/w/${icon}.png">`;
+
+    content += `<p class="iw-title"><strong>${marker.title}</strong></p>`;
+    content += '<p><i class="mdi mdi-thermometer" aria-hidden="true"></i>';
+    content += `${weather.main.temp}&deg;F <i class="mdi mdi-weather-windy"`;
+    content += `aria-hidden="true"></i> ${Math.round(weather.wind.speed)}`;
+    content += 'mph</p><a id="iwbutton" class="waves-effect waves-light btn ';
+    content += 'light-blue accent-4 z-depth-2">Monitor</a>';
+
+    return content;
+  };
+
+  const generate$li = function(obj) {
+    // Build HTML for li tag
+    let html = '<li class="collection-item avatar ';
+
+    html += 'brown lighten-3 dismissable"></li>';
+    const $li = $(html);
+
+    // Build HTML img tag
+    html = '<img src="http://openweathermap.org/img/w/';
+    html += `${obj.weather.weather[0].icon}.png" class="circle">`;
+
+    // Append img and p tag
+    $li.append(`${html}<p class="title">${obj.marker.title}</p>`);
+
+    // Build HTML and append p tag
+    html = '<p><i class="mdi mdi-thermometer" aria-hidden="true"></i> ';
+    html += `${obj.weather.main.temp}&deg;F <i class="mdi `;
+    html += 'mdi-weather-windy" aria-hidden="true"></i> ';
+    html += `${Math.round(obj.weather.wind.speed)} mph</p>`;
+    $li.append(html);
+
+    // Build HTML and append a tag
+    html = '<a href="#" class="secondary-content"><i class="material-icons ';
+    html += 'brown-text text-darken-2">cancel</i></a>';
+    $li.append(html);
+
+    return $li;
+  };
+
+  const renderTrackingList = function() {
+    const $trackingList = $('#tracking-list');
+
+    // Clear all items from the list
+    $trackingList.empty();
+
+    // Generate Header
+    let html = '<li class="collection-header center brown grey-text ';
+
+    html += `text-lighten-4"><h5>Monitored Areas: ${trackedMarkers.length}`;
+    html += '</h5></li>';
+    $trackingList.append(html);
+
+    // Loop through the trackedMarkers array and generate an li for each
+    for (const obj of trackedMarkers) {
+      // Append the new <li> to the trackingList <ul>
+      $trackingList.append(generate$li(obj));
+    }
+  };
+
+  const addTrackedMarker = function() {
+    // Guard clause to check for item already in list
+    if (trackedMarkers.length > 0) {
+      for (const obj of trackedMarkers) {
+        if (obj === currentMarkerWeather) {
+          return;
+        }
+      }
+    }
+    currentMarkerWeather.marker.setAnimation(google.maps.Animation.BOUNCE);
+
+    // Add the marker to the trackedMarkers array
+    trackedMarkers.push(currentMarkerWeather);
+
+    // Close the info window
+    infowindow.close(map);
+
+    // Render the tracking list
+    renderTrackingList();
+  };
+
+  const openMarkerInfoWindow = function(event) {
+    // This is a reference to the marker object that event does not contain
+    // Google Maps event handling creates an event object that does not have a
+    // reference to the actual object clicked, rather it provides a latLng
+    // object instead.
+
+    // Alias for this to allow callback for $xhrForecast to access reference.
+    const context = this;
+    const latitude = event.latLng.lat();
+    const longitude = event.latLng.lng();
+    const time = 'weather';
+    const time2 = 'forecast';
+    const url = 'http://api.openweathermap.org/data/2.5/';
+    const units = 'imperial';
+    let query = `${url}${time}?APPID=${OWMKey}`;
+
+    query += `&lat=${latitude}&lon=${longitude}&units=${units}`;
+    let query2 = `${url}${time2}?APPID=${OWMKey}`;
+
+    query2 += `&lat=${latitude}&lon=${longitude}&units=${units}`;
+
+    const $xhr = $.getJSON(query);
+
+    $xhr.done((data) => {
+      const $xhrForecast = $.getJSON(query2);
+
+      $xhrForecast.done((data2) => {
+        // App scope assignment
+        currentMarkerWeather = {
+          marker: context,
+          weather: data,
+          forecast: data2
+        };
+        infowindow.setContent(getMIWContent());
+        infowindow.setOptions({
+          position: {
+            lat: latitude,
+            lng: longitude
+          },
+          pixelOffset: {
+            width: 0,
+            height: -15
+          }
+        });
+
+        // Establish map event listener for removing an open infowindow on click
+        google.maps.event.addListenerOnce(map, 'click', () => {
+          infowindow.close(map);
+        });
+        infowindow.open(map);
+
+        // Establish listener for button on info window - add to monitor list
+        $('#iwbutton').click(addTrackedMarker);
+      })
+      .fail(() => {
+        Materialize.toast('Get forecast failed', 3000, 'rounded');
+      });
+    })
+    .fail(() => {
+      Materialize.toast('Get current weather failed', 3000, 'rounded');
+    });
+  };
+
+  const createMarkers = function() {
+    const gMap = map;
+
+    // Loop through riding areas, create markers, and store in array
+    for (const area of ridingAreas) {
+      const latCoord = parseFloat(area.lat);
+      const lngCoord = parseFloat(area.lng);
+      const marker = new google.maps.Marker({
+        position: {
+          lat: latCoord,
+          lng: lngCoord
+        },
+        map: gMap,
+        title: area.label
+      });
+
+      marker.addListener('click', openMarkerInfoWindow);
+      markers.push(marker);
+    }
+  };
+
   const loadGMAPI = function() {
     // jQuery AJAX call to load a script.
     // This process allows the API to be loaded asynchronously without referring
@@ -934,352 +1116,245 @@
         renderTrackingList();
       }
     })
-    .fail((jqxhr, settings, exception) => {
+    .fail(() => {
       Materialize.toast('Triggered ajaxError handler.');
     });
   };
 
-  var renderTrackingList = function() {
-    var $trackingList = $('#tracking-list');
-
-    // Clear all items from the list
-    $trackingList.empty();
-
-    // Generate Header
-    $trackingList.append(`<li class="collection-header center brown grey-text text-lighten-4"><h5>Monitored Areas: ${trackedMarkers.length}</h5></li>`);
-
-    // Loop through the trackedMarkers array and generate an li for each
-    for (var obj of trackedMarkers) {
-
-      // Build HTML for list item
-      var $li = $(`<li class="collection-item avatar brown lighten-3 dismissable"></li>`);
-      $li.append(`<img src="http://openweathermap.org/img/w/${obj.weather.weather[0].icon}.png" class="circle">`);
-      $li.append(`<p class="title">${obj.marker.title}</p>`);
-      $li.append(`<p><i class="mdi mdi-thermometer" aria-hidden="true"></i> ${obj.weather.main.temp}&deg;F <i class="mdi mdi-weather-windy" aria-hidden="true"></i> ${Math.round(obj.weather.wind.speed)} mph</p>`);
-      $li.append(`<a href="#" class="secondary-content"><i class="material-icons brown-text text-darken-2">cancel</i></a>`);
-
-      // Append the new <li> to the trackingList <ul>
-      $trackingList.append($li);
-    }
-  };
-
-  var addTrackedMarker = function(event) {
-
-    // Guard clause to check for item already in list
-    if (trackedMarkers.length > 0) {
-      for (var obj of trackedMarkers) {
-        if (obj === currentMarkerWeather) {
-          return;
-        }
-      }
-    }
-    currentMarkerWeather.marker.setAnimation(google.maps.Animation.BOUNCE);
-
-    // Add the marker to the trackedMarkers array
-    trackedMarkers.push(currentMarkerWeather);
-
-    // Close the info window
-    infowindow.close(map);
-
-    // Render the tracking list
-    renderTrackingList();
-  };
-
-  var getMIWContent = function() {
-    var weather = currentMarkerWeather.weather;
-    var marker = currentMarkerWeather.marker;
-    var icon = weather.weather[0].icon;
-    var content = '';
-    content += `<img src="http://openweathermap.org/img/w/${icon}.png">`;
-    content += `<p class="iw-title"><strong>${marker.title}</strong></p>`;
-    content += `<p><i class="mdi mdi-thermometer" aria-hidden="true"></i> ${weather.main.temp}&deg;F <i class="mdi mdi-weather-windy" aria-hidden="true"></i> ${Math.round(weather.wind.speed)} mph</p>`;
-    content += `<a id="iwbutton" class="waves-effect waves-light btn light-blue accent-4 z-depth-2">Monitor</a>`;
-    return content;
-  }
-
-  var openMarkerInfoWindow = function(event) {
-    var context = this;
-    var lat = event.latLng.lat();
-    var lng = event.latLng.lng();
-    var time = 'weather';
-    var time2 = 'forecast';
-    var url = 'http://api.openweathermap.org/data/2.5/';
-    var units = 'imperial';
-    var query = `${url}${time}?APPID=${OWMKey}`;
-    query += `&lat=${lat}&lon=${lng}&units=${units}`;
-    var query2 = `${url}${time2}?APPID=${OWMKey}`;
-    query2 += `&lat=${lat}&lon=${lng}&units=${units}`;
-
-    var $xhr = $.getJSON(query);
-    $xhr.done(function(data) {
-      var $xhrForecast = $.getJSON(query2);
-      $xhrForecast.done(function(data2) {
-        currentMarkerWeather = {
-          marker: context,
-          weather: data,
-          forecast: data2
-        };
-        infowindow.setContent(getMIWContent());
-        infowindow.setOptions({
-          position:{
-            lat: lat,
-            lng: lng
-          },
-          pixelOffset: {
-            width: 0,
-            height: -15
-          }
-        });
-
-        // Establish map event listener for removing an open infowindow on click
-        google.maps.event.addListenerOnce(map, 'click', function() {
-          infowindow.close(map);
-        });
-        infowindow.open(map);
-
-        // Establish listener for button on info window - add to monitor list
-        $('#iwbutton').click(addTrackedMarker);
-      })
-      .fail(function() {
-        Materialize.toast('Cannot connect to OpenWeatherMap', 3000, 'rounded');
-      });
-    })
-    .fail(function() {
-      Materialize.toast('Cannot connect to OpenWeatherMap', 3000, 'rounded');
-    });
-  };
-
-  var createMarkers = function() {
-
-    // Loop through riding areas, create markers, and store in array
-    for (var area of ridingAreas) {
-      var lat = parseFloat(area.lat);
-      var lng = parseFloat(area.lng);
-      var marker = new google.maps.Marker({
-        position: {lat: lat,lng: lng},
-        map: map,
-        title: area.label
-      });
-      marker.addListener('click', openMarkerInfoWindow);
-      markers.push(marker);
-    }
-  };
-
-  var removeTrackedMarker = function(event) {
-
+  const removeTrackedMarker = function(event) {
     // Get the title from the item in the list
-    var title = $(this).prev().prev().text();
-    var index;
+    const title = $(event.target).parent().prev().prev().text();
 
     // Loop trackedMarkers and record index of marker with the same title
-    for (var obj of trackedMarkers) {
-      if (obj.marker.title === title) {
-        index = trackedMarkers.indexOf(obj);
+    for (let index = 0; index < trackedMarkers.length; index++) {
+      if (trackedMarkers[index].marker.title === title) {
+        // Remove the tracked marker bounce animation
+        trackedMarkers[index].marker.setAnimation(null);
+
+        // Remove marker from the trackedMarkers array
+        trackedMarkers.splice(index, 1);
+        break;
       }
     }
-
-    // Remove the tracked marker indicator
-    trackedMarkers[index].marker.setAnimation(null);
-
-    // Remove marker from the trackedMarkers array
-    trackedMarkers.splice(index,1);
 
     // Render the tracking-list
     renderTrackingList();
   };
 
-  var calculateDaysAway = function($target) {
-    var result = [];
-    var chosenDate = new Date($target.val());
-    var currentDate = new Date();
-    var compDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-    var msPerDay = 60*60*24*1000
-    var forecastBeginsMS = chosenDate.getTime() - forecastDays * msPerDay;
-    var forecastBeginsDate = new Date();
+  const calculateDaysAway = function($target) {
+    const result = [];
+    const chosenDate = new Date($target.val());
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const currentDay = currentDate.getDate();
+    const compDate = new Date(currentYear, currentMonth, currentDay);
+    const msPerDay = 60 * 60 * 24 * 1000;
+    const forecastBeginsMS = chosenDate.getTime() - forecastDays * msPerDay;
+    const forecastBeginsDate = new Date();
+
     forecastBeginsDate.setTime(forecastBeginsMS);
     result.push((chosenDate.getTime() - compDate.getTime()) / msPerDay);
     result.push(forecastBeginsDate);
+
     return result;
-  }
+  };
 
-  var validateDatePicker = function(event) {
-
+  const validateDatePicker = function(event) {
     // Date chosen needs to be between today and 4 days from now.
-    var $target = $(event.target);
+    const $target = $(event.target);
+
     if ($target.val() === '') {
       $target.addClass('invalid').removeClass('valid');
       Materialize.toast('Must choose a date', 2000, 'rounded');
+
       return;
-    } else {
-      $target.addClass('valid').removeClass('invalid');
     }
-    var calcDays = calculateDaysAway($target);
+    $target.addClass('valid').removeClass('invalid');
+    const calcDays = calculateDaysAway($target);
+
     if (calcDays[0] > forecastDays) {
-      Materialize.toast('Earliest forecasts available: ' + months[calcDays[1].getMonth()] + ' ' + calcDays[1].getDate() + ', ' + calcDays[1].getFullYear(), 3000, 'rounded');
+      let msg = 'Earliest forecasts available: ';
+
+      msg += `${months[calcDays[1].getMonth()]} ${calcDays[1].getDate()}, `;
+      msg += `${calcDays[1].getFullYear()}`;
+      Materialize.toast(msg, 3000, 'rounded');
     }
   };
 
-  var formatDatePicker = function() {
+  const formatDatePicker = function() {
+    let classText = 'button.picker__close:focus, button.picker__clear:focus,';
+
+    classText += 'button.picker__today:focus';
     $('.picker__weekday-display').addClass('brown lighten-2');
     $('.picker__date-display').addClass('brown');
     $('.picker__day--selected').addClass('brown white-text');
     $('.picker__close, .picker__today').addClass('brown-text');
-    $('button.picker__close:focus, button.picker__clear:focus, button.picker__today:focus').addClass('brown lighten-2 brown-text');
+    $(classText).addClass('brown lighten-2 brown-text');
     $('.picker__day.picker__day--today').addClass('brown-text');
   };
 
-  var initDatePicker = function() {
-    var $datePicker = $('#date');
-    var date = new Date();
-    var day = date.getDate();
-    var month = date.getMonth();
-    var year = date.getFullYear();
+  const initDatePicker = function() {
+    const $datePicker = $('#date');
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    const setDatePicker = function(event) {
+      formatDatePicker();
+      if (event.hasOwnProperty('select')) {
+        // Event in this case is a date object while 'this' is the only
+        // reference to the datepicker object which is required to call close.
+        // External library from Materialize causing this behavior.
+        this.close();
+      }
+    };
+
     $datePicker.pickadate({
-      onSet: function (context) {
-        formatDatePicker();
-        if (context.hasOwnProperty('select')) {
-          this.close();
-        }
-      },
-      onOpen: function () {
-        formatDatePicker();
-      },
+      onSet: setDatePicker,
+      onOpen: formatDatePicker,
       min: date,
-      format: 'mmmm d, yyyy',
+      format: 'mmmm d, yyyy'
     });
 
     // Use the picker object directly.
-    var picker = $datePicker.pickadate('picker');
+    const picker = $datePicker.pickadate('picker');
 
     // Using JavaScript Date objects.
-    picker.set('select', new Date(year, month, day))
+    picker.set('select', new Date(year, month, day));
 
     // Establish event listener for change event
-    $datePicker.on('change',validateDatePicker);
-  }
+    $datePicker.on('change', validateDatePicker);
+  };
 
-  var setValidity = function($input, validityState) {
+  const setValidity = function($input, validityState) {
     if (validityState) {
       $input.addClass('valid').removeClass('invalid');
     }
-    else
-    {
+    else {
       $input.addClass('invalid').removeClass('valid');
     }
-  }
+  };
 
-  var validateFirstName = function() {
-    if ($('#firstName').val() !== "") {
-      setValidity($('#firstName'),true);
+  const validateFirstName = function() {
+    if ($('#firstName').val() !== '') {
+      setValidity($('#firstName'), true);
+
       return true;
     }
-    setValidity($('#firstName'),false);
+    setValidity($('#firstName'), false);
+
     return false;
   };
 
-  var validateLastName = function() {
-    if ($('#lastName').val() !== "") {
-      setValidity($('#lastName'),true);
+  const validateLastName = function() {
+    if ($('#lastName').val() !== '') {
+      setValidity($('#lastName'), true);
+
       return true;
     }
-    setValidity($('#lastName'),false);
+    setValidity($('#lastName'), false);
+
     return false;
   };
 
-  var validateUserName = function() {
-    if ($('#userName').val() !== "") {
-      setValidity($('#userName'),true);
+  const validateUserName = function() {
+    if ($('#userName').val() !== '') {
+      setValidity($('#userName'), true);
+
       return true;
     }
-    setValidity($('#userName'),false);
+    setValidity($('#userName'), false);
+
     return false;
   };
 
-  var validatePassword = function() {
-    if ($('#password').val() !== "") {
-      setValidity($('#password'),true);
+  const validatePassword = function() {
+    if ($('#password').val() !== '') {
+      setValidity($('#password'), true);
+
       return true;
     }
-    setValidity($('#password'),false);
+    setValidity($('#password'), false);
+
     return false;
   };
 
-  var validatePhone = function() {
-    var phone = $('#phone').val();
-    var test = phone.match(/(\d{3})[).\-\s]*(\d{3})[.\-\s]*(\d{4})/g);
+  const validatePhone = function() {
+    const phone = $('#phone').val();
+    const test = phone.match(/(\d{3})[).\-\s]*(\d{3})[.\-\s]*(\d{4})/g);
+
     if (test !== null) {
-      setValidity($('#phone'),true);
+      setValidity($('#phone'), true);
+
       return true;
     }
-    setValidity($('#phone'),false);
+    setValidity($('#phone'), false);
+
     return false;
   };
 
-  var cancelModalSubmit = function() {
-    window.timeOut(function() {
+  const cancelModalSubmit = function() {
+    window.timeOut(() => {
       $('#user-settings').openModal();
     }, 1000);
-  }
+  };
+
+  const validateUSWithEvent = function(event) {
+    switch (event.target.id) {
+      case 'firstName':
+        validateFirstName();
+        break;
+      case 'lastName':
+        validateLastName();
+        break;
+      case 'userName':
+        validateUserName();
+        break;
+      case 'password':
+        validatePassword();
+        break;
+      case 'phone':
+        validatePhone();
+        break;
+      default:
+    }
+  };
+
+  const toastMe = function(msg) {
+    Materialize.toast(msg, 3000, 'rounded');
+
+    return false;
+  };
 
   // Function to validate each user setting or a single setting based on event
-  var validateUserSettings = function(event) {
-    if (event === undefined) {
-      var validity = true;
-      validity = validity && validateFirstName();
-      if (!validity) {
-        Materialize.toast('Must provide a first name', 3000, 'rounded');
-        cancelModalSubmit();
-        return false;
-      }
-      validity = validity && validateLastName();
-      if (!validity) {
-        Materialize.toast('Must provide a last name', 3000, 'rounded');
-        cancelModalSubmit();
-        return false;
-      }
-      validity = validity && validateUserName();
-      if (!validity) {
-        Materialize.toast('Must provide a user name', 3000, 'rounded');
-        cancelModalSubmit();
-        return false;
-      }
-      validity = validity && validatePassword();
-      if (!validity) {
-        Materialize.toast('Must provide a password', 3000, 'rounded');
-        cancelModalSubmit();
-        return false;
-      }
-      validity = validity && validatePhone();
-      if (!validity) {
-        Materialize.toast('Need US phone number XXX.XXX.XXXX', 3000, 'rounded');
-        cancelModalSubmit();
-        return false;
-      }
-      return true;
-    }
-    else
-    {
-      switch (event.target.id) {
-        case 'firstName':
-          validateFirstName();
-          break;
-        case 'lastName':
-          validateLastName();
-          break;
-        case 'userName':
-          validateUserName();
-          break;
-        case 'password':
-          validatePassword();
-          break;
-        case 'phone':
-          validatePhone();
-          break;
-      }
-    }
-  }
+  const validateUserSettings = function(event) {
+    // Guard clause to hand off event base calls to another function
+    if (event) {
+      validateUSWithEvent(event);
 
-  var initUserSettings = function() {
+      return;
+    }
+    if (!validateFirstName()) {
+      return toastMe('Must provide a first name');
+    }
+    if (!validateLastName()) {
+      return toastMe('Must provide a last name');
+    }
+    if (!validateUserName()) {
+      return toastMe('Must provide a user name');
+    }
+    if (!validatePassword()) {
+      return toastMe('Must provide a password');
+    }
+    if (!validatePhone()) {
+      return toastMe('Need US phone number XXX.XXX.XXXX');
+    }
+
+    return true;
+  };
+
+  const initUserSettings = function() {
     Materialize.updateTextFields();
     $('#firstName').val(userSettings.firstName);
     $('#lastName').val(userSettings.lastName);
@@ -1288,11 +1363,12 @@
     $('#phone').val(userSettings.phone);
     $('input.select-dropdown').val(userSettings.frequency);
     validateUserSettings();
+
     // Required by Materialize when dynamically updating inputs
     Materialize.updateTextFields();
   };
 
-  var updateUserSettings = function() {
+  const updateUserSettings = function() {
     userSettings.firstName = $('#firstName').val();
     userSettings.lastName = $('#lastName').val();
     userSettings.userName = $('#userName').val();
@@ -1302,46 +1378,48 @@
     Materialize.toast('Settings updated', 3000, 'rounded');
   };
 
-  var submitModal = function() {
+  const submitModal = function() {
     if (validateUserSettings()) {
       updateUserSettings();
     }
+    else {
+      cancelModalSubmit();
+    }
   };
 
-  var genModalContent = function() {
-    var $modalContent = $('#sms-submit .modal-content');
+  const genModalContent = function() {
+    const $modalContent = $('#sms-submit .modal-content');
+
     $modalContent.empty();
-    $modalContent.append(`<h4>Please verify settings</h4>`);
-    $modalContent.append(`<p><i class="mdi mdi-cellphone-android" aria-hidden="true"></i>Phone: ${userSettings.phone}</p>`);
-    $modalContent.append(`<p><i class="mdi mdi-timer" aria-hidden="true"></i>Frequency: ${userSettings.frequency} hrs</p>`);
+    $modalContent.append('<h4>Please verify settings</h4>');
+    let html = '<p><i class="mdi mdi-cellphone-android" aria-hidden="true">';
+
+    html += `</i>Phone: ${userSettings.phone}</p>`;
+    html += '<p><i class="mdi mdi-timer" aria-hidden="true"></i>';
+    html += `Frequency: ${userSettings.frequency} hrs</p>`;
+    $modalContent.append(html);
   };
 
-  var buildForecastText = function() {
-    var forecast = 'waridingweather.com\n';
-    forecast += 'Forecast for ' + trackedMarkers.length + ' ORV parks:\n';
-    var lineBreak = '-----------------------\n';
-    forecast += lineBreak;
-    var dateTime;
-    var date;
-    var time;
-    var temp;
-    var desc;
-    var wind;
+  const buildForecastText = function() {
+    let forecast = 'waridingweather.com\n';
+    const lineBreak = '-----------------------\n';
+
+    forecast += `Weather for ${trackedMarkers.length} ORV parks:\n${lineBreak}`;
 
     // Loop the tracked object markers, current, and forecast data
-    for (var obj of trackedMarkers) {
-      forecast += obj.marker.title + '\n';
+    for (const obj of trackedMarkers) {
+      forecast += `${obj.marker.title}\n`;
 
       // Loop the forecast dataPoints
-      for (var dataPoint of obj.forecast.list) {
-        dateTime = dataPoint.dt_txt.split(" ");
-        date = dateTime[0].substr(dateTime[0].length-2);
-        time = dateTime[1].substr(0,2);
-        desc = dataPoint.weather[0].description;
-        temp = Math.round(dataPoint.main.temp) + 'F';
-        wind = Math.round(dataPoint.wind.speed);
-        forecast += date + ' ' + time + ' ' + temp;
-        forecast += ' ' + wind + 'W '+ desc + '\n';
+      for (const dataPoint of obj.forecast.list) {
+        const dateTime = dataPoint.dt_txt.split(' ');
+        const date = dateTime[0].substr(dateTime[0].length - 2);
+        const time = dateTime[1].substr(0, 2);
+        const desc = dataPoint.weather[0].description;
+        const temp = `${Math.round(dataPoint.main.temp)}F`;
+        const wind = `${Math.round(dataPoint.wind.speed)}W`;
+
+        forecast += `${date} ${time} ${temp} ${wind} ${desc}\n`;
       }
       forecast += lineBreak;
     }
@@ -1349,24 +1427,27 @@
     return forecast;
   };
 
-  var sendSMS = function(smsText) {
-    var url = 'http://textbelt.com/text';
-    var phone = userSettings.phone;
-    $.post( "http://textbelt.com/text", { number: phone, message: smsText })
-      .done(function(data) {
-      }
-    );
+  const sendSMS = function(smsText) {
+    const url = 'http://textbelt.com/text';
+    const phone = userSettings.phone;
+    const msg = `Forecast sent to: ${userSettings.phone}`;
+
+    $.post(url, {
+      number: phone,
+      message: smsText
+    });
+    Materialize.toast(msg, 3000, 'rounded');
   };
 
-  var smsVerified = function() {
-
+  const smsVerified = function() {
     // format and send SMS message
-    var smsText = buildForecastText();
+    const smsText = buildForecastText();
+
     sendSMS(smsText);
   };
 
-  var smsSubmit = function() {
-    if (trackedMarkers.length === 0) {
+  const smsSubmit = function() {
+    if (!trackedMarkers.length) {
       $('#sms-submit').closeModal();
       Materialize.toast('Add an item to be monitored', 3000, 'rounded');
     }
@@ -1385,27 +1466,27 @@
   $('select').material_select();
 
   // Init settings bottom modal
+  // Object below contains a linting error: in_duration not in camelCase.
+  // The object is from the Materialize library, and it's key's cannot change.
   $('.modal-trigger.settings').leanModal({
     dismissible: true,
-    opacity: .5,
+    opacity: 0.5,
     in_duration: 300,
     out_duration: 200,
     ready: initUserSettings,
-    complete: function() {
-      resizeScrollArrow();
-    }
+    complete: resizeScrollArrow
   });
 
   // Init the confirm send SMS modal
+  // Object below contains a linting error: in_duration not in camelCase.
+  // The object is from the Materialize library, and it's key's cannot change.
   $('#sms').leanModal({
     dismissible: true,
-    opacity: .5,
+    opacity: 0.5,
     in_duration: 300,
     out_duration: 200,
-    ready: function() {},
-    complete: function() {
-      resizeScrollArrow();
-    }
+    ready: null,
+    complete: resizeScrollArrow
   });
 
   // *************** Establish event listeners
