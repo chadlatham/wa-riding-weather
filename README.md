@@ -13,5 +13,10 @@ Feedback from Patrick Richardson was critical to development of the user flow of
 The biggest implementation challenge was creating the interaction between Google Maps and OpenWeatherMap through a custom data layer. Limiting the number of API requests to OpenWeatherMap is challenging as users move the map around and require new data. An intermediary data storage layer is necessary but not implemented in the sites current version.
 
 ##Images
-![Image of Yaktocat]
+###Main Page:
+![Image of Main Page]
 (./assets/images/MainPage.png)
+
+###Settings Modal:
+![Image of Settings Modal]
+(./assets/images/SettingsModal.png)
