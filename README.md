@@ -1,6 +1,5 @@
-http://chadlatham-wd-q1-project.surge.sh/
-
-https://github.com/chadlatham/wd-q1-project.git
+Deployed URL: http://chadlatham-wd-q1-project.surge.sh/
+Github URL: https://github.com/chadlatham/wa-riding-weather
 
 # WA Riding Weather
 This project is designed to solve the problem of people getting rained out at one off-road riding area when another choice was available. In Washington State, the weather changes frequently, and a person who is responsible for organizing an outing would feel the pain of sending his or her group to the wrong area. Having current weather forecasts presented in a simple and timely manner for multiple riding areas would be invaluable in the decision making process. WA Riding Weather attempts to solve this problem by letting a person select multiple riding areas in Washington to receive SMS based forecasts at regular intervals.
