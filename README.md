@@ -1,4 +1,5 @@
-Deployed URL: http://chadlatham-wd-q1-project.surge.sh/
+Deployed URL: http://chadlatham-wd-q1-project.surge.sh
+
 Github URL: https://github.com/chadlatham/wa-riding-weather
 
 # WA Riding Weather
