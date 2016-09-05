@@ -1,9 +1,6 @@
-Deployed URL: http://chadlatham-wd-q1-project.surge.sh
+#WA Riding Weather
+###http://chadlatham-wd-q1-project.surge.sh
 
-Github URL: https://github.com/chadlatham/wa-riding-weather
-
-
-# WA Riding Weather
 This project is designed to solve the problem of people getting rained out at one off-road riding area when another choice was available. In Washington State, the weather changes frequently, and a person who is responsible for organizing an outing would feel the pain of sending his or her group to the wrong area. Having current weather forecasts presented in a simple and timely manner for multiple riding areas would be invaluable in the decision making process. WA Riding Weather attempts to solve this problem by letting a person select multiple riding areas in Washington to receive SMS based forecasts at regular intervals.
 
 To accomplish this task, the site uses three API's - Google Maps, OpenWeatherMap, and TextBelt. Google Maps is used to create pins for each riding area and to provide a base layer for OpenWeatherMap current weather data. TextBelt provides free outgoing SMS text messages which are formatted using data from OpenWeatherMap's free 4-day forecasts.
@@ -15,8 +12,8 @@ The biggest implementation challenge was creating the interaction between Google
 ##Images
 ###Main Page:
 ![Image of Main Page]
-(./assets/images/MainPage.png)
+(./assets/images/MainPage.jpg)
 
 ###Settings Modal:
 ![Image of Settings Modal]
-(./assets/images/SettingsModal.png)
+(./assets/images/SettingsModal.jpg)
