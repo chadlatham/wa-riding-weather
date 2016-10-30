@@ -222,8 +222,7 @@ div.footer-copyright {
 #map-canvas {
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
-  /*CSS Trick to maintain aspect ratio in flex container*/
-  padding-top: 70%;
+  height: 500px;
 }
 
 #map-container {
@@ -244,6 +243,12 @@ div.footer-copyright {
 @media only screen and (min-width: 992px) {
   #map-container {
     padding-right: 0;
+  }
+}
+
+@media only screen and (max-width: 660px) {
+  #map-canvas {
+    height: 300px;
   }
 }
 

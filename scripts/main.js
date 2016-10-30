@@ -953,9 +953,9 @@
       query += '&units=imperial';
       const owmError = 'Cannot communicate with OpenWeatherMap';
 
-      const $xhr = $.getJSON(query);
+      request = $.getJSON(query);
 
-      $xhr.done(processResults)
+      request.done(processResults)
       .fail(() => {
         Materialize.toast(owmError, 3000, 'rounded');
       });
@@ -1213,32 +1213,20 @@
     }
   };
 
-  const loadGMAPI = function() {
-    // jQuery AJAX call to load a script.
-    // This process allows the API to be loaded asynchronously without referring
-    // to a global callback required for HTML5 ASYNC and DEFER as suggested by
-    // Google's API documentation.
-    $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyAU8UpdSij3QATPIpBPamsTL27thSCSfyo')
-    .done((script, textStatus) => {
-      if (textStatus === 'success') {
-        // Initialize the map upon successful loading of script
-        initWaOrvMap();
+  const loadMap = function() {
+    // Initialize the map upon successful loading of script
+    initWaOrvMap();
 
-        // Create the openweathermap icon based overlay
-        loadOWMIcons();
+    // Create the openweathermap icon based overlay
+    loadOWMIcons();
 
-        // Create the tile based cloud and percipitiation overlay
-        // loadCloudAndPrecipOverlay();
-        // Create the riding area markers and attach to map
-        createMarkers();
+    // Create the tile based cloud and percipitiation overlay
+    // loadCloudAndPrecipOverlay();
+    // Create the riding area markers and attach to map
+    createMarkers();
 
-        // Render the trackingList
-        renderTrackingList();
-      }
-    })
-    .fail(() => {
-      Materialize.toast('Triggered ajaxError handler.');
-    });
+    // Render the trackingList
+    renderTrackingList();
   };
 
   const removeTrackedMarker = function(event) {
@@ -1575,8 +1563,8 @@
   };
 
 // Immediate execution *********************************************************
-  // Pull the Google Maps API objects into the scope of the IFFE.
-  loadGMAPI();
+  // Load the Google map and supporting configuration.
+  loadMap();
 
   // ************** Initialize Materialize functionality
   // Init date picker
